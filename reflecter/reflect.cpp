@@ -72,6 +72,8 @@ void _ReflectiveLoad(void *dll)
         for(int i = 0; i < (block_count - 8) / 2; i += 2){
             uint16_t tmp = *(uint16_t *)(it + i + 8);
         
+            // TODO redo error processing
+        
             if(realloc_type(tmp) != 0xa){
                 // relocation type not supported
                 VOID WINAPI (*exit_)(UINT) = (VOID WINAPI (*)(UINT))_GetFuncAddr(kernel, 371);      //ExitProcess
@@ -86,8 +88,6 @@ void _ReflectiveLoad(void *dll)
     }
     
     // load dependencies and populate the IAT
-    
-    // TODO redo the following code
     struct directory *imp_dir = &NtHeader->OptionalHeader.DataDirectory.Import;
     
     int imp_count = 0;
@@ -96,15 +96,14 @@ void _ReflectiveLoad(void *dll)
         imp_count++;
     }
     
-    uint64_t *imp_entry_table = (uint64_t *)rva_to_offset(base, imp_dir->rva + sizeof(struct import_directory) * (imp_count + 1));
+    uint64_t *import_lookup_table = (uint64_t *)(imp + imp_count + 1);
     
-    void **thunk = (void **)rva_to_offset(base, imp->first_thunk);
+    void **thunk = (void **)rva_to_offset(base, imp->first_thunk);  //begining of the IAT
     
     while(imp->orig_thunk){
-        puts((char *)rva_to_offset(base, imp->name));
         void *mod_base = getModuleHandleA((char *)rva_to_offset(base, imp->name));
         
-        // TODO I need to redo the string processing
+        // TODO redo the string processing
         
         if(mod_base == NULL){
             char *name = (char *)((uint8_t *)base + imp->name);
@@ -115,25 +114,23 @@ void _ReflectiveLoad(void *dll)
             mod_base = loadLib(buf);
         }
         
-        while(*imp_entry_table){
+        while(*import_lookup_table){
         
-            if(ordinal(*imp_entry_table)){
-                //*thunk = getProcAddress(mod_base, (char *)ordinal_number(*imp_entry_table));
+            if(ordinal(*import_lookup_table)){
+                *thunk = getProcAddress(mod_base, (char *)ordinal_number(*import_lookup_table));
             }else{
-                //*thunk = getProcAddress(mod_base, (char *)rva_to_offset(base, hint_rva(*imp_entry_table) + 2));
+                // page 77 hint/name table entry one (no name only pointer to export name table)
+                *thunk = getProcAddress(mod_base, (char *)rva_to_offset(base, hint_rva(*import_lookup_table) + 2));
             }
             
             thunk++;
             
-            imp_entry_table++;
+            import_lookup_table++;
         }
         
-        imp_entry_table++;
+        import_lookup_table++;
         imp++;
     }
-    
-    puts("here");
-    fflush(stdout);
     
     // notify the dll it has been loaded (am I suppose to call thread attach as well?)
     BOOL APIENTRY (*entry_fp)(HINSTANCE, DWORD, LPVOID) = (BOOL APIENTRY (*)(HINSTANCE, DWORD, LPVOID))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint);
