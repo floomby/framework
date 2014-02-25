@@ -1,6 +1,8 @@
 #ifndef STR_H_INCLUDED
 #define STR_H_INCLUDED
 
+#include <cstdint>
+
 #define is_upper(x) ((0x40 < x) && (x < 0x5B))
 #define is_lower(x) ((0x60 < x) && (x < 0x7B))
 #define to_upper(x) (x - 0x20)
@@ -25,6 +27,13 @@ inline __attribute__((always_inline)) bool StrCaseCmp(const char *str1, const ch
     }
     
     return true;
+}
+
+inline __attribute__((always_inline)) void MemCpy(void *dest, const void *src, size_t bytes)
+{
+    for(size_t i = 0; i < bytes; ++i){
+        *((uint8_t *)dest + i) = *((uint8_t *)src + i);
+    }
 }
 
 #endif//STR_H_INCLUDED
