@@ -4,6 +4,6 @@
 #include <cstdint>
 #include <windows.h>
 
-void _InjectPid(void *what, size_t size, uint32_t where, uint32_t pid, void (*patch)(uint64_t));
+void _InjectPid(void *what, size_t size, uint32_t where, uint32_t pid);
 
 #endif//INJECT_H_INCLUDED

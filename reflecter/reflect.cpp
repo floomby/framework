@@ -2,7 +2,9 @@
 
 #include <cstdio>
 
-//TODO finish reworking this function
+#ifdef NEED_META
+#include "../dll/meta.h"
+#endif//NEED_META
 
 #define realloc_type(x) ((x & 0xF000) >> 12)
 
@@ -15,13 +17,15 @@
 
 #define realloc_loc(x) (x & 0x0FFF)
 
+#ifdef LOAD_DEPS
 #define SEARCH_PATH "C:\\Windows\\System32\\"
+#endif//LOAD_DEPS
 
 #define ordinal(x)          (x & 0x8000000000000000)
 #define ordinal_number(x)   ((x & 0x7FFF80000000000) >> 47)
 #define hint_rva(x)         ((uint32_t)((x & 0x000007FFFFFFF)))
 
-void _ReflectiveLoad(void *dll)
+void *_ReflectiveLoad(void *dll)
 {
     char *kernel;
     __asm__ __volatile__(
@@ -137,4 +141,12 @@ void _ReflectiveLoad(void *dll)
     // notify the dll it has been loaded
     BOOL APIENTRY (*entry_fp)(HINSTANCE, DWORD, LPVOID) = (BOOL APIENTRY (*)(HINSTANCE, DWORD, LPVOID))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint);
     entry_fp(NULL, DLL_PROCESS_ATTACH, NULL);
+    
+    // tell the dll metadata struct where we are
+#ifdef NEED_META
+    DllMeta.where = base;
+    DllMeta.size  = NtHeader->OptionalHeader.SizeOfImage;
+#endif//NEED_META
+
+    return base;
 }

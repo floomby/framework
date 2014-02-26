@@ -1,4 +1,4 @@
-CC = x86_64-w64-mingw32-g++ -g -nostdlib -nostartfiles -std=c++11 -fno-exceptions -Os
+CC = x86_64-w64-mingw32-g++ -g -nostdlib -nostartfiles -std=c++11 -fno-exceptions -Os -DNEED_META
 
 
 SRCS = $(wildcard *.cpp) $(wildcard ../inject/*.cpp) $(wildcard ../reflecter/*.cpp) $(wildcard ../apiget/*.cpp)

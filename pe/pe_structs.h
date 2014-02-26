@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #define rva_to_offset(base, rva)    ((void *)((uint8_t *)(base) + (rva)))
+#define offset_to_rva(base, off)    ((uint64_t)(void *)off - (uint64_t)base)
 
 struct dos_header {
     uint16_t e_magic;

@@ -4,6 +4,6 @@
 #include "../stuff/str.h"
 #include "../apiget/apiget.h"
 
-void _ReflectiveLoad(void *);
+void *_ReflectiveLoad(void *);
 
 #endif//REFLECT_H_INCLUDED

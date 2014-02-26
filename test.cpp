@@ -30,10 +30,15 @@ void *load(const char *name, size_t *read)
 
 int main(int argc, char *argv[])
 {
+    if(argc != 2){
+        exit(1);
+    }
+
     size_t size;
     void *dll = load("C:\\Users\\Josh\\Desktop\\malware\\framework\\dll\\test.dll", &size);
 
-    _ReflectiveLoad(dll);    
+    void *base = _ReflectiveLoad(dll);
+    ((void (*)(uint32_t))rva_to_offset(base, 0x1036))(atoi(argv[1]));
 
     free(dll);
 
