@@ -25,10 +25,9 @@ void _ReflectiveLoad(void *dll)
 {
     char *kernel;
     __asm__ __volatile__(
-        "lea test, %0;"
-        "jmp done;"
-        "test: .asciz \"kernel32.dll\";"
-        "done:;"
+        "lea 2(%%rip), %0;"
+        "jmp .+15;"
+        ".asciz \"kernel32.dll\";"
         : "=r" (kernel)
         :
         :
@@ -71,17 +70,22 @@ void _ReflectiveLoad(void *dll)
         
         for(int i = 0; i < (block_count - 8) / 2; i += 2){
             uint16_t tmp = *(uint16_t *)(it + i + 8);
-        
-            // TODO redo error processing
-        
-            if(realloc_type(tmp) != 0xa){
-                // relocation type not supported
-                VOID WINAPI (*exit_)(UINT) = (VOID WINAPI (*)(UINT))_GetFuncAddr(kernel, 371);      //ExitProcess
-                exit_(0);
+#ifdef FANCY_ERROR
+            switch(realloc_type(tmp)){
+                case 0xa:
+                    {
+#endif//FANCY_ERROR                    
+                    uint64_t rva = page_rva + realloc_loc(tmp);
+                    *(uint64_t *)rva_to_offset(base, rva) += (uint64_t)base - NtHeader->OptionalHeader.ImageBase;
+#ifdef FANCY_ERROR
+                    }
+                    break;
+                    
+                default:
+                    ((VOID WINAPI (*)(UINT))getProcAddress(kernel_handle, (char *)(uint64_t)371))(realloc_type(tmp));      //ExitProcess
+                    break;
             }
-
-            uint64_t rva = page_rva + realloc_loc(tmp);
-            *(uint64_t *)rva_to_offset(base, rva) += (uint64_t)base - NtHeader->OptionalHeader.ImageBase;
+#endif//FANCY_ERROR
         }
 
         it += block_count;
@@ -103,8 +107,8 @@ void _ReflectiveLoad(void *dll)
     while(imp->orig_thunk){
         void *mod_base = getModuleHandleA((char *)rva_to_offset(base, imp->name));
         
-        // TODO redo the string processing
-        
+        // TODO redo the string processing (to make stdlib free and payloadable)
+#ifdef LOAD_DEPS
         if(mod_base == NULL){
             char *name = (char *)((uint8_t *)base + imp->name);
             char buf[strlen(SEARCH_PATH) + strlen(name) + 1];
@@ -113,18 +117,16 @@ void _ReflectiveLoad(void *dll)
 
             mod_base = loadLib(buf);
         }
-        
+#endif//LOAD_DEPS
         while(*import_lookup_table){
-        
             if(ordinal(*import_lookup_table)){
                 *thunk = getProcAddress(mod_base, (char *)ordinal_number(*import_lookup_table));
             }else{
-                // page 77 hint/name table entry one (no name only pointer to export name table)
+                // pe spec page 77 - hint/name table entry one (no name only pointer to export name table)
                 *thunk = getProcAddress(mod_base, (char *)rva_to_offset(base, hint_rva(*import_lookup_table) + 2));
             }
             
             thunk++;
-            
             import_lookup_table++;
         }
         
@@ -132,7 +134,7 @@ void _ReflectiveLoad(void *dll)
         imp++;
     }
     
-    // notify the dll it has been loaded (am I suppose to call thread attach as well?)
+    // notify the dll it has been loaded
     BOOL APIENTRY (*entry_fp)(HINSTANCE, DWORD, LPVOID) = (BOOL APIENTRY (*)(HINSTANCE, DWORD, LPVOID))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint);
     entry_fp(NULL, DLL_PROCESS_ATTACH, NULL);
 }

@@ -31,10 +31,10 @@ void *load(const char *name, size_t *read)
 int main(int argc, char *argv[])
 {
     size_t size;
-    void *dll = load(argv[1], &size);
+    void *dll = load("C:\\Users\\Josh\\Desktop\\malware\\framework\\dll\\test.dll", &size);
 
-    _ReflectiveLoad(dll);
-    
+    _ReflectiveLoad(dll);    
+
     free(dll);
 
     return 0;
