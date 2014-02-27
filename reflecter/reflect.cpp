@@ -13,10 +13,6 @@
 
 #define realloc_loc(x) (x & 0x0FFF)
 
-#ifdef LOAD_DEPS
-#define SEARCH_PATH "C:\\Windows\\System32\\"
-#endif//LOAD_DEPS
-
 #define ordinal(x)          (x & 0x8000000000000000)
 #define ordinal_number(x)   ((x & 0x7FFF80000000000) >> 47)
 #define hint_rva(x)         ((uint32_t)((x & 0x000007FFFFFFF)))
@@ -27,6 +23,9 @@ extern "C"
 #ifdef NEED_META
 __declspec(dllexport)
 #endif//NEED_META
+#ifdef FREESTANDING
+__attribute__((optimize("omit-frame-pointer")))
+#endif//FREESTANDING
 void *_ReflectiveLoad(void *dll)
 {
     char *kernel;
@@ -121,6 +120,21 @@ void *_ReflectiveLoad(void *dll)
     
     void **thunk = (void **)rva_to_offset(base, imp->first_thunk);  //begining of the IAT
     
+#ifdef LOAD_DEPS
+    // the gas parser has an annoying limitation see
+    // http://effbot.org/pyfaq/why-can-t-raw-strings-r-strings-end-with-a-backslash.htm
+    // this is why we use fowards slashes
+    char *search_path;
+    __asm__ __volatile__(
+        "lea 2(%%rip), %0;"
+        "jmp .+23;"
+        ".asciz \"C:/Windows/System32/\";"
+        : "=r" (search_path)
+        :
+        :
+    );
+#endif//LOAD_DEPS
+    
     while(imp->orig_thunk){
         void *mod_base = getModuleHandleA((char *)rva_to_offset(base, imp->name));
         
@@ -128,9 +142,9 @@ void *_ReflectiveLoad(void *dll)
 #ifdef LOAD_DEPS
         if(mod_base == NULL){
             char *name = (char *)((uint8_t *)base + imp->name);
-            char buf[strlen(SEARCH_PATH) + strlen(name) + 1];
-            strcpy(buf, SEARCH_PATH);
-            strcat(buf, name);
+            char buf[StrLen(search_path) + StrLen(name) + 1];
+            StrCpy(buf, search_path);
+            StrCat(buf, name);
 
             mod_base = loadLib(buf);
         }
@@ -161,6 +175,35 @@ void *_ReflectiveLoad(void *dll)
     BOOL APIENTRY (*entry_fp)(HINSTANCE, DWORD, LPVOID) = (BOOL APIENTRY (*)(HINSTANCE, DWORD, LPVOID))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint);
     entry_fp(NULL, DLL_PROCESS_ATTACH, NULL);
 #endif//NEED_META
-
+    
+    //TODO check and make sure that the code below works
+#ifndef FREESTANDING
     return base;
+#else
+    __asm__ __volatile__(
+        "movq %0, %%rax;"
+        "ret;"
+        "___chkstk_ms:;"
+        "pushq %%rcx;"
+        "pushq %%rax;"
+        "cmpq $0x1000, %%rax;"
+        "lea 0x18(%%rsp), %%rcx;"
+        "jb end;"
+        "lp:;"
+        "subq $0x1000, %%rcx;"
+        "orq $0x0, (%%rcx);"
+        "subq $0x1000, %%rax;"
+        "cmpq $0x1000, %%rax;"
+        "ja lp;"
+        "end:;"
+        "subq %%rax, %%rcx;"
+        "orq $0x0, (%%rcx);"
+        "popq %%rax;"
+        "popq %%rcx;"
+        "ret;"
+        :
+        : "r" (base)
+        :
+    );
+#endif//FRESTANDING
 }

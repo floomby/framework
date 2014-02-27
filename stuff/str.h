@@ -36,4 +36,35 @@ inline __attribute__((always_inline)) void MemCpy(void *dest, const void *src, s
     }
 }
 
+inline __attribute__((always_inline)) void StrCpy(char *dest, const char *src)
+{
+    while(*src){
+        *dest = *src;
+        src++;
+        dest++;
+    }
+
+    *dest = *src;
+}
+
+inline __attribute__((always_inline)) void StrCat(char *base, const char *str)
+{
+    while(*base){
+        base++;
+    }
+
+    StrCpy(base, str);
+}
+
+inline __attribute__((always_inline)) size_t StrLen(const char *str)
+{
+    size_t size = 0;
+    
+    while(str[size]){
+        size++;
+    }
+    
+    return size;
+}
+
 #endif//STR_H_INCLUDED

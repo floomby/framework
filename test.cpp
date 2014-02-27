@@ -1,10 +1,14 @@
 #include <cstdio>
-#include <windows.h>
 #include <cassert>
 #include <cstdlib>
 
+#include <vector>
+
+#include "shell/shell.h"
 #include "reflecter/reflect.h"
 #include "apiget/apiget.h"
+
+#include <windows.h>
 
 void *load(const char *name, size_t *read)
 {
@@ -30,7 +34,18 @@ void *load(const char *name, size_t *read)
 
 int main(int argc, char *argv[])
 {
+    // if(argc != 3){
+        // fprintf(stderr, "usage: %s <server> <port>\n", argv[0]);
+        // exit(EXIT_FAILURE);
+    // }
+
+    // _Shell(argv[1], argv[2]);
+    
+    // return 0;
+
+    // dll stuff
     if(argc != 2){
+        fprintf(stderr, "usage: %s <pid>\n", argv[0]);
         exit(1);
     }
 
