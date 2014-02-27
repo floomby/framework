@@ -2,10 +2,6 @@
 
 #include <cstdio>
 
-#ifdef NEED_META
-#include "../dll/meta.h"
-#endif//NEED_META
-
 #define realloc_type(x) ((x & 0xF000) >> 12)
 
 #define IMAGE_REL_BASED_ABSOLUTE 0
@@ -25,6 +21,12 @@
 #define ordinal_number(x)   ((x & 0x7FFF80000000000) >> 47)
 #define hint_rva(x)         ((uint32_t)((x & 0x000007FFFFFFF)))
 
+int move_dll;
+
+extern "C"
+#ifdef NEED_META
+__declspec(dllexport)
+#endif//NEED_META
 void *_ReflectiveLoad(void *dll)
 {
     char *kernel;
@@ -38,8 +40,10 @@ void *_ReflectiveLoad(void *dll)
     );
 
     // parse kernel export table for address we need
-    void *(*getModuleHandleA)(const char *) = (void *(*)(const char *))_GetFuncAddr(kernel, 644);
-    void *(*getProcAddress)(void *, const char *) = (void *(*)(void *,const char *))_GetFuncAddr(kernel, 700);
+    void *(*getModuleHandleA)(const char *);
+    _GetFuncAddr(kernel, 644, getModuleHandleA);
+    void *(*getProcAddress)(void *, const char *);
+    _GetFuncAddr(kernel, 700, getProcAddress);
 
     void *kernel_handle = getModuleHandleA(kernel);
     
@@ -49,18 +53,24 @@ void *_ReflectiveLoad(void *dll)
     // parse headers for move
     struct dos_header *DosHeader = (struct dos_header *)dll;
     struct nt_header *NtHeader = (struct nt_header *)rva_to_offset(dll, DosHeader->e_lfanew);
-    
-    // allocate space
-    void *base = vAlloc(NULL, NtHeader->OptionalHeader.SizeOfImage, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-    
-    // copy headers
-    MemCpy(base, dll, NtHeader->OptionalHeader.SizeOfHeaders);
-    
-    // copy sections
     struct section_header *sections = (struct section_header *)((uint8_t *)NtHeader + sizeof(struct nt_header) + 0x8);
     
-    for(int i = 0; i < NtHeader->FileHeader.NumberOfSections; i++){
-        MemCpy(rva_to_offset(base, sections[i].addr), rva_to_offset(dll, sections[i].pointer_to_raw), sections[i].size_of_raw);   
+    void *base;
+    
+    if(move_dll){
+        // allocate space
+        base = vAlloc(NULL, NtHeader->OptionalHeader.SizeOfImage, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    
+        // copy headers
+        MemCpy(base, dll, NtHeader->OptionalHeader.SizeOfHeaders);
+    
+        // copy sections
+        for(int i = 0; i < NtHeader->FileHeader.NumberOfSections; i++){
+            MemCpy(rva_to_offset(base, sections[i].addr), rva_to_offset(dll, sections[i].pointer_to_raw), sections[i].size_of_raw);   
+        }
+    }else{
+        base = dll;
+        ((VOID WINAPI (*)(UINT))getProcAddress(kernel_handle, (char *)(uint64_t)371))(123);
     }
     
     // do the relocations
@@ -76,7 +86,7 @@ void *_ReflectiveLoad(void *dll)
             uint16_t tmp = *(uint16_t *)(it + i + 8);
 #ifdef FANCY_ERROR
             switch(realloc_type(tmp)){
-                case 0xa:
+                case IMAGE_REL_BASED_DIR64:
                     {
 #endif//FANCY_ERROR                    
                     uint64_t rva = page_rva + realloc_loc(tmp);
@@ -94,6 +104,9 @@ void *_ReflectiveLoad(void *dll)
 
         it += block_count;
     }
+    
+    if(move_dll)
+    {
     
     // load dependencies and populate the IAT
     struct directory *imp_dir = &NtHeader->OptionalHeader.DataDirectory.Import;
@@ -138,14 +151,15 @@ void *_ReflectiveLoad(void *dll)
         imp++;
     }
     
+    }
+
     // notify the dll it has been loaded
+#ifdef NEED_META
+    BOOL APIENTRY (*entry_fp)(void *, size_t) = (BOOL APIENTRY (*)(void *, size_t))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint);
+    entry_fp(base, NtHeader->OptionalHeader.SizeOfImage);
+#else
     BOOL APIENTRY (*entry_fp)(HINSTANCE, DWORD, LPVOID) = (BOOL APIENTRY (*)(HINSTANCE, DWORD, LPVOID))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint);
     entry_fp(NULL, DLL_PROCESS_ATTACH, NULL);
-    
-    // tell the dll metadata struct where we are
-#ifdef NEED_META
-    DllMeta.where = base;
-    DllMeta.size  = NtHeader->OptionalHeader.SizeOfImage;
 #endif//NEED_META
 
     return base;

@@ -37,8 +37,9 @@ int main(int argc, char *argv[])
     size_t size;
     void *dll = load("C:\\Users\\Josh\\Desktop\\malware\\framework\\dll\\test.dll", &size);
 
+    move_dll = 1;
     void *base = _ReflectiveLoad(dll);
-    ((void (*)(uint32_t))rva_to_offset(base, 0x1036))(atoi(argv[1]));
+    ((void (*)(uint32_t))rva_to_offset(base, 0x1038))(atoi(argv[1]));
 
     free(dll);
 

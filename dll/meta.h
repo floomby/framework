@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-struct {
+static struct {
     void *where;
     size_t size;
 } DllMeta;

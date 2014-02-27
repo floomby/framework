@@ -1,4 +1,4 @@
-CC = x86_64-w64-mingw32-g++ -nostdlib -nostartfiles -std=c++11 -Os -DLOAD_DEPS -DFANCY_ERROR
+CC = x86_64-w64-mingw32-g++ -nostdlib -nostartfiles -std=c++11 -Os -DLOAD_DEPS -DFANCY_ERROR -DNEED_META
 
 SRCS = $(wildcard *.cpp)
 ASMS = $(wildcard *.s)
