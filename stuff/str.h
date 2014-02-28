@@ -67,4 +67,7 @@ inline __attribute__((always_inline)) size_t StrLen(const char *str)
     return size;
 }
 
+
+
+
 #endif//STR_H_INCLUDED

@@ -104,9 +104,6 @@ void *_ReflectiveLoad(void *dll)
         it += block_count;
     }
     
-    if(move_dll)
-    {
-    
     // load dependencies and populate the IAT
     struct directory *imp_dir = &NtHeader->OptionalHeader.DataDirectory.Import;
     
@@ -145,27 +142,29 @@ void *_ReflectiveLoad(void *dll)
             StrCpy(buf, search_path);
             StrCat(buf, name);
 
-
             mod_base = loadLib(buf);
         }
 #endif//LOAD_DEPS
-        while(*import_lookup_table){
-            if(ordinal(*import_lookup_table)){
-                *thunk = getProcAddress(mod_base, (char *)ordinal_number(*import_lookup_table));
-            }else{
-                // TODO pe spec page 77 - hint/name table entry one (no name only pointer to export name table)
-                *thunk = getProcAddress(mod_base, (char *)rva_to_offset(base, hint_rva(*import_lookup_table) + 2));
-            }
+
+        if(move_dll){
+            while(*import_lookup_table){
+                if(ordinal(*import_lookup_table)){
+                    *thunk = getProcAddress(mod_base, (char *)ordinal_number(*import_lookup_table));
+                }else{
+                    // TODO pe spec page 77 - hint/name table entry one (no name only pointer to export name table)
+                    *thunk = getProcAddress(mod_base, (char *)rva_to_offset(base, hint_rva(*import_lookup_table) + 2));
+                }
             
-            thunk++;
-            import_lookup_table++;
+                thunk++;
+                import_lookup_table++;
+            }
         }
         
         import_lookup_table++;
         imp++;
     }
     
-    }
+    // }
 
     // notify the dll it has been loaded
 #ifdef NEED_META

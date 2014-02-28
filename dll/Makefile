@@ -7,7 +7,7 @@ OBJS = $(notdir $(SRCS:.cpp=.o))
 dll: $(OBJS)
 	$(CC) -o test.dll $(OBJS) -shared \
 		-Wl,--enable-auto-import \
-		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 \
+		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt \
 		-Wl,--exclude-all-symbols \
 		-Wl,--retain-symbols-file=link/exports \
 		-Wl,-eDllMain -Wl,-Map=link/map.map

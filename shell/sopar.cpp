@@ -44,6 +44,8 @@ sopar::sopar(const char *server, const char *port)
     }
 
     freeaddrinfo(result);
+    
+    this->sopar_send("hello\n");
 }
 
 void sopar::go()
