@@ -54,6 +54,8 @@ void sopar::go()
         this->sopar_recv();
         this->buf[strlen(this->buf) - 1] = '\0';
         this->parse();
+        if(this->sock == INVALID_SOCKET)
+            break;
     }
 }
 
@@ -84,8 +86,7 @@ void sopar::sopar_send(const char *str)
 void sopar::cleanup()
 {
     closesocket(this->sock);
+    this->sock = INVALID_SOCKET;
     
     WSACleanup();
-    
-    TerminateThread((void *)(uint64_t)GetCurrentThreadId(), 0);
 }

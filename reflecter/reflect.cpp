@@ -1,7 +1,5 @@
 #include "reflect.h"
 
-#include <cstdio>
-
 #define realloc_type(x) ((x & 0xF000) >> 12)
 
 #define IMAGE_REL_BASED_ABSOLUTE 0
@@ -20,12 +18,8 @@
 int move_dll;
 
 extern "C"
-#ifdef NEED_META
 __declspec(dllexport)
-#endif//NEED_META
-#ifdef FREESTANDING
 __attribute__((optimize("omit-frame-pointer")))
-#endif//FREESTANDING
 void *_ReflectiveLoad(void *dll)
 {
     char *kernel;
@@ -55,7 +49,7 @@ void *_ReflectiveLoad(void *dll)
     struct section_header *sections = (struct section_header *)((uint8_t *)NtHeader + sizeof(struct nt_header) + 0x8);
     
     void *base;
-    
+
     if(move_dll){
         // allocate space
         base = vAlloc(NULL, NtHeader->OptionalHeader.SizeOfImage, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
@@ -69,9 +63,8 @@ void *_ReflectiveLoad(void *dll)
         }
     }else{
         base = dll;
-        ((VOID WINAPI (*)(UINT))getProcAddress(kernel_handle, (char *)(uint64_t)371))(123);
     }
-    
+
     // do the relocations
     struct directory *rel = &NtHeader->OptionalHeader.DataDirectory.Relocation;
     
@@ -83,22 +76,9 @@ void *_ReflectiveLoad(void *dll)
         
         for(int i = 0; i < (block_count - 8) / 2; i += 2){
             uint16_t tmp = *(uint16_t *)(it + i + 8);
-#ifdef FANCY_ERROR
-            switch(realloc_type(tmp)){
-                case IMAGE_REL_BASED_DIR64:
-                    {
-#endif//FANCY_ERROR                    
-                    uint64_t rva = page_rva + realloc_loc(tmp);
-                    *(uint64_t *)rva_to_offset(base, rva) += (uint64_t)base - NtHeader->OptionalHeader.ImageBase;
-#ifdef FANCY_ERROR
-                    }
-                    break;
-                    
-                default:
-                    ((VOID WINAPI (*)(UINT))getProcAddress(kernel_handle, (char *)(uint64_t)371))(realloc_type(tmp));      //ExitProcess
-                    break;
-            }
-#endif//FANCY_ERROR
+            
+            uint64_t rva = page_rva + realloc_loc(tmp);
+            *(uint64_t *)rva_to_offset(base, rva) += (uint64_t)base - NtHeader->OptionalHeader.ImageBase;
         }
 
         it += block_count;
@@ -115,10 +95,6 @@ void *_ReflectiveLoad(void *dll)
     
     uint64_t *import_lookup_table = (uint64_t *)(imp + imp_count + 1);
     
-#ifdef LOAD_DEPS
-    // the gas parser has an annoying limitation see
-    // http://effbot.org/pyfaq/why-can-t-raw-strings-r-strings-end-with-a-backslash.htm
-    // this is why we use fowards slashes
     char *search_path;
     __asm__ __volatile__(
         "lea 2(%%rip), %0;"
@@ -128,13 +104,11 @@ void *_ReflectiveLoad(void *dll)
         :
         :
     );
-#endif//LOAD_DEPS
     
     while(imp->orig_thunk){
         void **thunk = (void **)rva_to_offset(base, imp->first_thunk);
         void *mod_base = getModuleHandleA((char *)rva_to_offset(base, imp->name));
         
-#ifdef LOAD_DEPS
         if(mod_base == NULL){
 
             char *name = (char *)((uint8_t *)base + imp->name);
@@ -144,7 +118,6 @@ void *_ReflectiveLoad(void *dll)
 
             mod_base = loadLib(buf);
         }
-#endif//LOAD_DEPS
 
         if(move_dll){
             while(*import_lookup_table){
@@ -164,21 +137,9 @@ void *_ReflectiveLoad(void *dll)
         imp++;
     }
     
-    // }
-
-    // notify the dll it has been loaded
-#ifdef NEED_META
     BOOL APIENTRY (*entry_fp)(void *, size_t) = (BOOL APIENTRY (*)(void *, size_t))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint);
     entry_fp(base, NtHeader->OptionalHeader.SizeOfImage);
-#else
-    BOOL APIENTRY (*entry_fp)(HINSTANCE, DWORD, LPVOID) = (BOOL APIENTRY (*)(HINSTANCE, DWORD, LPVOID))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint);
-    entry_fp(NULL, DLL_PROCESS_ATTACH, NULL);
-#endif//NEED_META
-    
-    //TODO check and make sure that the code below works
-#ifndef FREESTANDING
-    return base;
-#else
+
     __asm__ __volatile__(
         "movq %0, %%rax;"
         "ret;"
@@ -205,5 +166,4 @@ void *_ReflectiveLoad(void *dll)
         : "r" (base)
         :
     );
-#endif//FRESTANDING
 }

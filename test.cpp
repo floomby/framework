@@ -31,17 +31,16 @@ void *load(const char *name, size_t *read)
 
 int main(int argc, char *argv[])
 {
-    if(argc != 2){
-        fprintf(stderr, "usage: %s <pid>\n", argv[0]);
-        exit(1);
-    }
+    // if(argc != 2){
+        // fprintf(stderr, "usage: %s <pid>\n", argv[0]);
+        // exit(1);
+    // }
 
     size_t size;
     void *dll = load("C:\\Users\\Josh\\Desktop\\malware\\framework\\dll\\test.dll", &size);
 
     move_dll = 1;
     void *base = _ReflectiveLoad(dll);
-    ((void (*)(uint32_t))rva_to_offset(base, 0x1000))(atoi(argv[0]));
 
     free(dll);
 
