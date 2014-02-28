@@ -21,7 +21,7 @@ void sopar::parse()
     }
     else if(!strcmp(this->buf, "cmd"))
     {
-        this->sopar_send("executing cammand: ");
+        this->sopar_send("executing command: ");
         this->sopar_send(it + 1);
         this->sopar_send("\n");
         return;

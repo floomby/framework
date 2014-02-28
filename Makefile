@@ -1,4 +1,4 @@
-CC = x86_64-w64-mingw32-g++ -std=c++11 -static-libstdc++ -static-libgcc -g -DNEED_META -DLOAD_DEPS -DFANCY_ERROR
+CC = x86_64-w64-mingw32-g++ -std=c++11 -static-libstdc++ -static-libgcc -g
 
 SRCS = $(wildcard *.cpp) $(wildcard reflecter/*.cpp)
 ASMS = $(wildcard *.s)
