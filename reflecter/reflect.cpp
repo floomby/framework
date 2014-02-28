@@ -47,7 +47,7 @@ void *_ReflectiveLoad(void *dll)
     void *kernel_handle = getModuleHandleA(kernel);
     
     void *(*vAlloc)(void *, size_t, uint32_t, uint32_t) = (void *(*)(void *, size_t, uint32_t, uint32_t))getProcAddress(kernel_handle, (char *)(uint64_t)1468);
-    void *(*loadLib)(const char *) = (void *(*)(const char *))getProcAddress(kernel_handle, (char *)(uint64_t)963);
+    void *(*loadLib)(const char *) = (void *(*)(const char *))getProcAddress(kernel_handle, (char *)(uint64_t)964);
 
     // parse headers for move
     struct dos_header *DosHeader = (struct dos_header *)dll;
@@ -118,8 +118,6 @@ void *_ReflectiveLoad(void *dll)
     
     uint64_t *import_lookup_table = (uint64_t *)(imp + imp_count + 1);
     
-    void **thunk = (void **)rva_to_offset(base, imp->first_thunk);  //begining of the IAT
-    
 #ifdef LOAD_DEPS
     // the gas parser has an annoying limitation see
     // http://effbot.org/pyfaq/why-can-t-raw-strings-r-strings-end-with-a-backslash.htm
@@ -136,15 +134,17 @@ void *_ReflectiveLoad(void *dll)
 #endif//LOAD_DEPS
     
     while(imp->orig_thunk){
+        void **thunk = (void **)rva_to_offset(base, imp->first_thunk);
         void *mod_base = getModuleHandleA((char *)rva_to_offset(base, imp->name));
         
-        // TODO redo the string processing (to make stdlib free and payloadable)
 #ifdef LOAD_DEPS
         if(mod_base == NULL){
+
             char *name = (char *)((uint8_t *)base + imp->name);
             char buf[StrLen(search_path) + StrLen(name) + 1];
             StrCpy(buf, search_path);
             StrCat(buf, name);
+
 
             mod_base = loadLib(buf);
         }
@@ -153,7 +153,7 @@ void *_ReflectiveLoad(void *dll)
             if(ordinal(*import_lookup_table)){
                 *thunk = getProcAddress(mod_base, (char *)ordinal_number(*import_lookup_table));
             }else{
-                // pe spec page 77 - hint/name table entry one (no name only pointer to export name table)
+                // TODO pe spec page 77 - hint/name table entry one (no name only pointer to export name table)
                 *thunk = getProcAddress(mod_base, (char *)rva_to_offset(base, hint_rva(*import_lookup_table) + 2));
             }
             
@@ -183,6 +183,7 @@ void *_ReflectiveLoad(void *dll)
     __asm__ __volatile__(
         "movq %0, %%rax;"
         "ret;"
+        ".global ___chkstk_ms;"
         "___chkstk_ms:;"
         "pushq %%rcx;"
         "pushq %%rax;"

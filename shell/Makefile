@@ -1,6 +1,6 @@
-CC = x86_64-w64-mingw32-g++ -std=c++11 -static-libstdc++ -static-libgcc -g -DNEED_META -DLOAD_DEPS -DFANCY_ERROR
+CC = x86_64-w64-mingw32-g++ -std=c++11 -static-libstdc++ -static-libgcc -g -DTESTER
 
-SRCS = $(wildcard *.cpp) $(wildcard reflecter/*.cpp)
+SRCS = $(wildcard *.cpp)
 ASMS = $(wildcard *.s)
 OBJS = $(notdir $(SRCS:.cpp=.o)) $(ASMS:.s=.o)
 
