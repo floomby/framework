@@ -1,4 +1,4 @@
-CC = x86_64-w64-mingw32-g++ -nostdlib -nostartfiles -std=gnu++11 -fno-exceptions -Os -Wno-pmf-conversion
+CC = x86_64-w64-mingw32-g++ -nostdlib -nostartfiles -std=gnu++11 -fno-exceptions -Os
 
 
 SRCS = $(wildcard *.cpp) $(wildcard ../inject/*.cpp) $(wildcard ../reflecter/*.cpp) $(wildcard ../apiget/*.cpp) $(wildcard ../shell/*.cpp)
