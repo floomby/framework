@@ -1,0 +1,6 @@
+1) _InjectPid has issues, they can be fixed by switching to a threaded injection
+2) Port PEpatcher (mabey just use msvcrt)
+3) Get Shelly working
+4) migratable shell (requires 1+3)
+5) give the dll a shell that provides access to exports (use stuff from interactive_dll_injector) (big task)
+6) Port libUnity crypto code

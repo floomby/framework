@@ -1,0 +1,7 @@
+CURRENT GOAL:
+ C  1) Reflectivly load dll
+ C  2) Migrate reflectivly loaded dll into another process
+ C  3) Reverse Shell
+    4) Clever Shell functionality
+    5) Streamline creation of drop ins
+    6) Crypto in the core
