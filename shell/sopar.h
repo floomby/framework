@@ -23,6 +23,9 @@ private:
     void cleanup();
 };
 
+void ShellInit();
+void ShellDone();
+
 void ShellExecute(const char *what);
 
 // c stdlib functions (we link to msvcrt.dll)

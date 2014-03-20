@@ -1,15 +1,6 @@
 
 #include "sopar.h"
 
-void ShellExecute(const char *what)
-{
-    system(what);
-}
-
-
-// this is the future plan
-
-/*
 void ShellInit()
 {
     // Create a pipes for std{err,in,out}
@@ -22,9 +13,9 @@ void ShellInit()
     HANDLE hStdErrReadPipe;
     HANDLE hStdErrWritePipe;
     
-    LPSECURITY_ATTRIBUTES attrs;
+    SECURITY_ATTRIBUTES attrs;
     
-    attrs.nLength = sizeof(LPSECURITY_ATTRIBUTES);
+    attrs.nLength = sizeof(SECURITY_ATTRIBUTES);
     attrs.lpSecurityDescriptor = NULL;
     attrs.bInheritHandle = TRUE;
     
@@ -33,33 +24,22 @@ void ShellInit()
     CreatePipe(&hStdErrReadPipe, &hStdErrWritePipe, &attrs, 0);
     
     // Duplicate the handles
-    HANDLE hProc = GetCurrentProcessId();
+    HANDLE hProc = (HANDLE)(uint64_t)GetCurrentProcessId();
     
-    DuplicateHandle(hProc, );
-    DuplicateHandle(hProc, );
-    DuplicateHandle(hProc, );
+//    DuplicateHandle(hProc, );
+//    DuplicateHandle(hProc, );
+//    DuplicateHandle(hProc, );
 
     
     
 }
+
+
 
 void ShellExecute(const char *what)
 {
-    // Create an instance of cmd.exe to run the command
-    
-    
-    
-    // Buffer the pipes over the socket until termination
-    
-    
-    
-    // get the return code (if possible)(optinal)
-    
-    
-    
+    system(what);
 }
-
-
 
 void ShellDone()
 {
@@ -67,4 +47,3 @@ void ShellDone()
 
 
 }
-*/
