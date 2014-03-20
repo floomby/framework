@@ -1,5 +1,15 @@
+
 #include "sopar.h"
 
+void ShellExecute(const char *what)
+{
+    system(what);
+}
+
+
+// this is the future plan
+
+/*
 void ShellInit()
 {
     // Create a pipes for std{err,in,out}
@@ -57,3 +67,4 @@ void ShellDone()
 
 
 }
+*/
