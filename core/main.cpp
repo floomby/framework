@@ -1,10 +1,10 @@
 #include <cstdint>
 
-#include "../shell/sopar.h"
-#include "../inject/inject.h"
-#include "../reflecter/reflect.h"
+#include "shell/sopar.h"
+#include "inject/inject.h"
+#include "reflect/reflect.h"
 
-#include "exports.h"
+#include "external.h"
 
 struct DllMeta_ DllMeta;
 

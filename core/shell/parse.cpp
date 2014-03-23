@@ -1,6 +1,6 @@
 #include "sopar.h"
 
-#include "../dll/exports.h"
+#include "../external.h"
 
 extern struct DllMeta_ DllMeta;
 

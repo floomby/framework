@@ -2,8 +2,8 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "reflecter/reflect.h"
-#include "apiget/apiget.h"
+#include "../core/reflect/reflect.h"
+#include "../core/apiget/apiget.h"
 
 #include <windows.h>
 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     // }
 
     size_t size;
-    void *dll = load("C:\\Users\\Josh\\Desktop\\malware\\framework\\dll\\test.dll", &size);
+    void *dll = load("C:\\Users\\Josh\\Desktop\\malware\\framework\\test.dll", &size);
 
     move_dll = 1;
     void *base = _ReflectiveLoad(dll);

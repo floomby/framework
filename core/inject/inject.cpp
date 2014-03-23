@@ -1,5 +1,4 @@
 #include "inject.h"
-#include "../pe/pe_structs.h"
 
 #define PROC_PERMS  (PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ)
 

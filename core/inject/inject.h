@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <windows.h>
 
+#include "../../common/pe_structs.h"
+
 void _InjectPid(void *what, size_t size, uint32_t where, uint32_t pid);
 
 #endif//INJECT_H_INCLUDED

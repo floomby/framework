@@ -1,3 +1,0 @@
-The injection is finicky right now.
-It kind of works (against stuff I write but not aginst other processes).
-I think the best solution may be to just switch to the other method (the thread method).
