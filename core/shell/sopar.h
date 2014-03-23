@@ -8,6 +8,8 @@
 #include <cstdint>
 
 #include "../stuff/str.h"
+#include "../../common/crt.h"
+
 
 class sopar {
 public:
@@ -27,10 +29,5 @@ void ShellInit();
 void ShellDone();
 
 void ShellExecute(const char *what);
-
-// c stdlib functions (we link to msvcrt.dll)
-
-extern "C" void sprintf(char *buf, const char *fmt, ...);
-extern "C" int system(const char *command);
 
 #endif//SOPAR_H_INCLUDED

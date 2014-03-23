@@ -1,7 +1,6 @@
 CC = x86_64-w64-mingw32-g++ -std=gnu++11
 DLLFLAGS = -nostdlib -nostartfiles -fno-exceptions -Os
 
-
 SRCS = $(wildcard *.cpp) $(wildcard ../inject/*.cpp) $(wildcard ../reflecter/*.cpp) $(wildcard ../apiget/*.cpp) $(wildcard ../shell/*.cpp)
 OBJS = $(notdir $(SRCS:.cpp=.o))
 
@@ -9,6 +8,8 @@ SCORE = $(wildcard core/*.cpp) $(wildcard core/reflect/*.cpp) $(wildcard core/in
 OCORE = $(notdir $(SCORE:.cpp=.o))
 
 SLAUNCH = $(wildcard core/reflect/*.cpp) launch/test.cpp
+
+all: dll launch
 
 dll: core
 	$(CC) -o test.dll $(OCORE) -shared $(DLLFLAGS) \
@@ -32,3 +33,4 @@ launch: $(SLAUNCH) launch/Makefile
 clean:
 	rm -f test.dll $(OBJS) link/map.map $(OCORE) 2>/dev/null
 	cd launch && make clean
+	touch $(SLAUNCH)
