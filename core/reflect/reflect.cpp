@@ -17,8 +17,6 @@
 
 int move_dll;
 
-extern "C"
-__declspec(dllexport)
 __attribute__((optimize("omit-frame-pointer")))
 void *_ReflectiveLoad(void *dll)
 {

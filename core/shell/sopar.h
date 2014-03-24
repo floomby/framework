@@ -25,9 +25,4 @@ private:
     void cleanup();
 };
 
-void ShellInit();
-void ShellDone();
-
-void ShellExecute(const char *what);
-
 #endif//SOPAR_H_INCLUDED

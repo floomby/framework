@@ -6,8 +6,6 @@
 
 extern int move_dll;
 
-extern "C"
-__declspec(dllexport)
 void *_ReflectiveLoad(void *dll);
 
 #endif//REFLECT_H_INCLUDED
