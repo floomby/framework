@@ -6,15 +6,13 @@
 #include "../common/crt.h"
 #include "../core/external.h"
 
-extern DllMeta_ DllMeta;
-
-extern "C" __declspec(dllexport) void migrate(SOCKET sock, const char *arg)
+extern "C" __declspec(dllexport) void migrate(const char *arg)
 {
     DllMeta.next.pid = atoi(arg);
     // create the thing for info proccess
     // DllMeta.next.info = 
     
-    Migrate();
+//    Migrate();
 }
 
 

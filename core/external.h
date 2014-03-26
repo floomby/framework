@@ -1,21 +1,12 @@
 #ifndef EXTERNAL_H_INCLUDED
 #define EXTERNAL_H_INCLUDED
 
-#include <winsock2.h>
-#include <cstdint>
-#include <windows.h>
+#ifdef INTERNAL_H_INCLUDED
+#error "don't include both the internal and external headers"
+#endif//INTERNAL_H_INCLUDED
 
-void ReverseShell(const char *server, const char *port);
-void Reconnect();
-void Migrate();
+#include "meta.h"
 
-struct DllMeta_ {
-    void   *where;
-    size_t size;
-    struct {
-        uint32_t pid;
-        WSAPROTOCOL_INFO *info;
-    } next;
-};
+#include "shell/shell.h"
 
 #endif//EXTERNAL_H_INCLUDED

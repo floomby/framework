@@ -3,11 +3,10 @@
 
 #include "../core/external.h"
 
-extern "C" __declspec(dllexport) void NAME(const char *arg)
+extern "C" __declspec(dllexport) void echo(const char *arg)
 {
-
-
-
+    SockSend(arg);
+    SockSend("\n");
 }
 
 
