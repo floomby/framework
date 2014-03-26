@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     STARTUPINFO start_info = {sizeof(STARTUPINFO)};
 
     char cmd[] = "C:\\cygwin64\\bin\\nc.exe";
-    char arg[] = "C:\\cygwin64\\bin\\nc.exe -k -l 1234";
+    char arg[] = "C:\\cygwin64\\bin\\nc.exe -v -k -l 1234";
 
     if(!CreateProcess(cmd,
                       arg,

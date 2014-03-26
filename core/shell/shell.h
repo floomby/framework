@@ -8,5 +8,6 @@ void SockDisconnect();
 void SockSend(const char *msg);
 char *SockRecv();
 void SockShell();
+int SockReconnect();
 
 #endif//SHELL_H_INCLUDED

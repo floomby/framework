@@ -112,7 +112,7 @@ void SockParse()
     
     void *fp;
     
-    if( fp = GetExport(DllMeta.where, sc_buf) ){
+    if( fp = GetExport(DllMeta.curr.where, sc_buf) ){
         ( (void (*)(const char *))fp )(sc_buf + strlen(sc_buf) + 1);
     }else{
         SockSend("undefined directive: ");
@@ -131,4 +131,31 @@ void SockShell()
         sc_buf[strlen(sc_buf) - 1] = '\0';
         SockParse();
     }
+}
+
+int SockReconnect()
+{
+    int ret;
+    WSADATA wsaData;
+    
+    if((ret = WSAStartup(MAKEWORD(2,2), &wsaData))){
+        return ret;
+    }
+
+    DllMeta.net.sock = WSASocket(DllMeta.net.info.iAddressFamily,
+                                 DllMeta.net.info.iSocketType,
+                                 DllMeta.net.info.iProtocol,
+                                 &DllMeta.net.info,
+                                 0,
+                                 DllMeta.net.info.dwProviderFlags | WSA_FLAG_OVERLAPPED
+                                 );
+
+    if(DllMeta.net.sock == INVALID_SOCKET){
+        WSACleanup();
+        return INVALID_SOCKET;
+    }
+    
+    sc_printf("worked\n");
+    
+    return 0;
 }

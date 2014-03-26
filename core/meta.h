@@ -6,21 +6,20 @@
 #include <windows.h>
 #include <cstdint>
 
-struct DllMeta_t {
+typedef struct {
     void *where;
     size_t size;
     uint32_t pid;
-    struct {
-        uint32_t pid;
-        WSAPROTOCOL_INFO *info;
-    } next;
+} DllInfo_t;
+
+struct DllMeta_t {
+    DllInfo_t prev;
+    DllInfo_t curr;
+    DllInfo_t next;
     struct {
         SOCKET sock;
-        void *buf;
+        WSAPROTOCOL_INFO info;
     } net;
-    struct {
-        bool move;
-    } inject;
 };
 
 extern DllMeta_t DllMeta;

