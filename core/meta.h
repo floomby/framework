@@ -9,6 +9,7 @@
 struct DllMeta_t {
     void *where;
     size_t size;
+    uint32_t pid;
     struct {
         uint32_t pid;
         WSAPROTOCOL_INFO *info;

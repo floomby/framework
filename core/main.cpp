@@ -10,6 +10,7 @@ extern "C" BOOL DllMain(void *where, size_t size)
     // set the metadata
     DllMeta.where = where;
     DllMeta.size  = size;
+    DllMeta.pid = 0;
     
     // change the entry point
     struct dos_header *dh = (struct dos_header *)where;
@@ -27,9 +28,19 @@ extern "C" BOOL DllMain(void *where, size_t size)
 
 extern "C" BOOL DllMain2(void *where, size_t size)
 {
+    // free memory from the last process
+    if(DllMeta.pid){
+        HANDLE hProc = OpenProcess(PROC_PERMS, FALSE, DllMeta.pid);
+    
+        VirtualFreeEx(hProc, DllMeta.where, DllMeta.size, MEM_RELEASE);
+    
+        CloseHandle(hProc);
+    }
+
     // set the metadata
     DllMeta.where = where;
     DllMeta.size  = size;
+    DllMeta.pid = (uint32_t)(uint64_t)GetCurrentProcess();
     
     // call the restart dropin
     ( (void (*)())GetExport(where, "restart") )();

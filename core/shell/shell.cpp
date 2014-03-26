@@ -3,7 +3,21 @@
 #include "shell.h"
 #include "../apiget/export.h"
 
+#include "../../common/crt.h"
+
 static char sc_buf[BUF_SIZE];
+
+int sc_printf(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    int ret = vsnprintf(sc_buf, sizeof(sc_buf), fmt, args);
+    va_end(args);
+    SockSend(sc_buf);
+    return ret;
+}
+
+
 
 int SockConnect(const char *server, const char *port)
 {
@@ -45,7 +59,7 @@ int SockConnect(const char *server, const char *port)
 
     freeaddrinfo(result);
     
-    SockSend("hello\n");
+    sc_printf("hello\n");
     
     return 0;
 }

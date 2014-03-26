@@ -1,6 +1,5 @@
 #include "inject.h"
-
-#define PROC_PERMS  (PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ)
+#include "../internal.h"
 
 void _InjectPid(void *what, size_t size, uint32_t where, uint32_t pid)
 {

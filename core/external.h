@@ -8,5 +8,6 @@
 #include "meta.h"
 
 #include "shell/shell.h"
+#include "migration/migration.h"
 
 #endif//EXTERNAL_H_INCLUDED

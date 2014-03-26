@@ -1,7 +1,7 @@
 CC = x86_64-w64-mingw32-g++ -std=gnu++11
 DLLFLAGS = -nostdlib -nostartfiles -fno-exceptions -Os -fomit-frame-pointer
 
-SCORE = $(wildcard core/*.cpp) $(wildcard core/reflect/*.cpp) $(wildcard core/inject/*.cpp) $(wildcard core/shell/*.cpp) $(wildcard core/apiget/*.cpp)
+SCORE = $(wildcard core/*.cpp) $(wildcard core/reflect/*.cpp) $(wildcard core/inject/*.cpp) $(wildcard core/shell/*.cpp) $(wildcard core/apiget/*.cpp) $(wildcard core/migration/*.cpp)
 OCORE = $(notdir $(SCORE:.cpp=.o))
 
 SLAUNCH = $(wildcard core/reflect/*.cpp) launch/test.cpp

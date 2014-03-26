@@ -5,7 +5,7 @@
 #error "don't include both the internal and external headers"
 #endif//EXTERNAL_H_INCLUDED
 
-#define BUF_SIZE 4096
+#include "config.h"
 
 #include "meta.h"
 
