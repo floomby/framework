@@ -12,7 +12,7 @@ extern "C" BOOL DllMain(void *where, size_t size)
     
     DllMeta.curr.where = where;
     DllMeta.curr.size = size;
-    DllMeta.curr.pid = (uint32_t)(uint64_t)GetCurrentProcess();
+    DllMeta.curr.pid = GetCurrentProcessId();
 
     DllMeta.next = {0};
     

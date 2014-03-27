@@ -19,6 +19,7 @@ struct DllMeta_t {
     struct {
         SOCKET sock;
         WSAPROTOCOL_INFO info;
+        char *buf;
     } net;
 };
 

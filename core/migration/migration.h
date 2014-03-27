@@ -4,6 +4,6 @@
 #include <cstdint>
 
 void Next(uint32_t pid);
-void Migrate();
+bool Migrate();
 
 #endif//MIGRATION_H_INCLUDED

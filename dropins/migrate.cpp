@@ -6,8 +6,13 @@
 
 extern "C" __declspec(dllexport) void migrate(const char *arg)
 {
-    Next(atoi(arg));
-    Migrate();
+    uint32_t pid = atoi(arg);
+
+    Next(pid);
+    if(Migrate()){
+        sc_printf("unable to migrate into process %d\n", pid);
+        return;
+    }
     SockDisconnect();
     ExitThread(0);
 }

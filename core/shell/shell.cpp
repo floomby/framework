@@ -58,7 +58,8 @@ int SockConnect(const char *server, const char *port)
     }
 
     freeaddrinfo(result);
-    
+
+    DllMeta.net.buf = sc_buf;    
     sc_printf("hello\n");
     
     return 0;
@@ -154,8 +155,9 @@ int SockReconnect()
         WSACleanup();
         return INVALID_SOCKET;
     }
-    
-    sc_printf("worked\n");
+
+    DllMeta.net.buf = sc_buf;
+    sc_printf("migration complete\n");
     
     return 0;
 }
