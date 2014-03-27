@@ -1,5 +1,5 @@
-#include "inject.h"
 #include "../internal.h"
+#include "inject.h"
 
 bool _InjectPid(void *what, size_t size, uint32_t where, uint32_t pid)
 {

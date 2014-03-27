@@ -59,6 +59,7 @@ int SockConnect(const char *server, const char *port)
 
     freeaddrinfo(result);
 
+    DllMeta.net.buf_sz = BUF_SIZE;
     DllMeta.net.buf = sc_buf;    
     sc_printf("hello\n");
     

@@ -57,8 +57,6 @@ int main(int argc, char *argv[])
         cerr << "unable to fork exec netcat: " << GetLastError() << endl;
         exit(EXIT_FAILURE);
     }
-        
-
 
     size_t size;
     void *dll = load("C:\\Users\\Josh\\Desktop\\malware\\framework\\test.dll", &size);
@@ -68,8 +66,10 @@ int main(int argc, char *argv[])
 
     free(dll);
 
-    while(1)
-        Sleep(1000);
-
+    WaitForSingleObject(proc_info.hProcess, INFINITE);
+    
+    CloseHandle(proc_info.hProcess);
+    CloseHandle(proc_info.hThread);
+    
     return 0;
 }
