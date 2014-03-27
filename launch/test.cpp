@@ -60,8 +60,12 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+    char buf[4096];
+    GetCurrentDirectory(sizeof(buf) - strlen("\\test.dll") - sizeof(TCHAR), buf);
+    strcat(buf, "\\test.dll");
+
     size_t size;
-    void *dll = load("C:\\Users\\Josh\\Desktop\\malware\\framework\\test.dll", &size);
+    void *dll = load(buf, &size);
 
     move_dll = 1;
     void *base = _ReflectiveLoad(dll);
