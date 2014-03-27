@@ -13,14 +13,14 @@ STOOLS = $(wildcard tools/offer/*.cpp)
 
 .PHONY: clean all
 
+all: dll launch tools
+
 dll: $(OCORE) $(ODROP)
 	$(CC) -o test.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) \
 		-Wl,--enable-auto-import \
 		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt \
 		-Wl,--exclude-all-symbols \
 		-Wl,-eDllMain -Wl,-Map=link/map.map
-
-all: dll launch tools
 
 $(OCORE): $(SCORE)
 	$(CC) $(DLLFLAGS) -c $(SCORE)

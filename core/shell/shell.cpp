@@ -115,7 +115,10 @@ void SockParse()
     void *fp;
     
     if( fp = GetExport(DllMeta.curr.where, sc_buf) ){
-        ( (void (*)(const char *))fp )(sc_buf + strlen(sc_buf) + 1);
+        char *tmp = sc_buf + strlen(sc_buf) + 1;
+        char arg_buf[strlen(tmp)];
+        strcpy(arg_buf, tmp);
+        ( (void (*)(const char *))fp )(arg_buf);
     }else{
         SockSend("undefined directive: ");
         SockSend(sc_buf);
@@ -129,6 +132,7 @@ void SockShell()
     for(;;){
         if(DllMeta.net.sock == INVALID_SOCKET)
             break;
+        sc_printf(">");
         SockRecv();
         sc_buf[strlen(sc_buf) - 1] = '\0';
         SockParse();

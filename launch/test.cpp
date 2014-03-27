@@ -6,7 +6,6 @@
 #include "../core/apiget/apiget.h"
 
 #include <windows.h>
-#include <unistd.h>
 
 #include <iostream>
 
@@ -38,13 +37,16 @@ void *load(const char *name, size_t *read)
 int main(int argc, char *argv[])
 {
     PROCESS_INFORMATION proc_info;
-    STARTUPINFO start_info = {sizeof(STARTUPINFO)};
+    STARTUPINFO start_info;
 
-    char cmd[] = "C:\\cygwin64\\bin\\nc.exe";
-    char arg[] = "C:\\cygwin64\\bin\\nc.exe -l 1234";
+    ZeroMemory(&proc_info, sizeof(PROCESS_INFORMATION));
+    ZeroMemory(&start_info, sizeof(STARTUPINFO));
+    start_info.cb = sizeof(STARTUPINFO);
 
-    if(!CreateProcess(cmd,
-                      arg,
+    char cmd[] = "C:\\cygwin64\\bin\\nc.exe -l 1234";
+
+    if(!CreateProcess(NULL,
+                      cmd,
                       NULL,
                       NULL,
                       FALSE,
@@ -66,10 +68,14 @@ int main(int argc, char *argv[])
 
     free(dll);
 
+    for(;;){
+        Sleep(1000);
+    }
+
     WaitForSingleObject(proc_info.hProcess, INFINITE);
-    
+
     CloseHandle(proc_info.hProcess);
     CloseHandle(proc_info.hThread);
-    
+
     return 0;
 }

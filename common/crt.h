@@ -9,5 +9,6 @@ extern "C" int system(const char *command);
 extern "C" size_t strlen(const char *s);
 extern "C" char *strstr(const char *haystack, const char *needle);
 extern "C" int strcmp(const char *s, const char *t);
+extern "C" char *strcpy(char *dest, const char *src);
 
 #endif//CRT_H_INCLUDED
