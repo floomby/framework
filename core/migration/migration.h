@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-void Next(uint32_t pid);
+void Next(uint32_t pid, bool kill);
 bool Migrate();
 
 #endif//MIGRATION_H_INCLUDED

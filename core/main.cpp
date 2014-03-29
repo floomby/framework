@@ -13,6 +13,7 @@ extern "C" BOOL DllMain(void *where, size_t size)
     DllMeta.curr.where = where;
     DllMeta.curr.size = size;
     DllMeta.curr.pid = GetCurrentProcessId();
+    DllMeta.curr.kill = false;
 
     DllMeta.next = {0};
     
@@ -33,16 +34,17 @@ extern "C" BOOL DllMain2(void *where, size_t size)
     DllMeta.prev.where = DllMeta.curr.where;
     DllMeta.prev.size = DllMeta.curr.size;
     DllMeta.prev.pid = DllMeta.curr.pid;
+    DllMeta.prev.kill = DllMeta.curr.kill;
 
     DllMeta.curr.where = where;
     DllMeta.curr.size  = size;
     DllMeta.curr.pid = DllMeta.next.pid;
+    DllMeta.curr.kill = DllMeta.next.kill;
     
-    DllMeta.next = {0};
-    
+    DllMeta.next = {0};    
 
     // free memory from the last process
-    if(DllMeta.prev.pid){
+    if(DllMeta.prev.pid && !DllMeta.prev.kill){
         HANDLE hProc = OpenProcess(PROC_PERMS, FALSE, DllMeta.prev.pid);
     
         VirtualFreeEx(hProc, DllMeta.prev.where, DllMeta.prev.size, MEM_RELEASE);

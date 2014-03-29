@@ -10,6 +10,7 @@ typedef struct {
     void *where;
     size_t size;
     uint32_t pid;
+    bool kill;
 } DllInfo_t;
 
 struct DllMeta_t {

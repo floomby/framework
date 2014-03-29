@@ -4,9 +4,10 @@
 #include "../../common/pe_structs.h"
 #include "../reflect/reflect.h"
 
-void Next(uint32_t pid)
+void Next(uint32_t pid, bool kill)
 {
     DllMeta.next.pid = pid;
+    DllMeta.next.kill = kill;
 
     if(DllMeta.net.sock == INVALID_SOCKET)
         return;
