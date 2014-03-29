@@ -1,5 +1,8 @@
-CC = x86_64-w64-mingw32-g++ -std=gnu++11
-DLLFLAGS = -nostdlib -nostartfiles -fno-exceptions -Os -fomit-frame-pointer
+CC = x86_64-w64-mingw32-gcc
+CPP = x86_64-w64-mingw32-g++ -std=gnu++11
+CFLAGS = -nostdlib -nostartfiles -Os -fomit-frame-pointer
+DLLFLAGS = $(CFLAGS) -fno-exceptions
+
 
 SCORE = $(wildcard core/*.cpp) $(wildcard core/reflect/*.cpp) $(wildcard core/inject/*.cpp) $(wildcard core/shell/*.cpp) $(wildcard core/apiget/*.cpp) $(wildcard core/migration/*.cpp)
 OCORE = $(notdir $(SCORE:.cpp=.o))
@@ -11,23 +14,28 @@ ODROP = $(notdir $(SDROP:.cpp=.o))
 
 STOOLS = $(wildcard tools/offer/*.cpp)
 
+SCOMMON = $(wildcard common/*.c)
+OCOMMON = $(notdir $(SCOMMON:.c=.o))
+
 .PHONY: clean all
 
 all: dll launch tools
 
-dll: $(OCORE) $(ODROP)
-	$(CC) -o test.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) \
+dll: $(OCORE) $(ODROP) $(OCOMMON)
+	$(CPP) -o test.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) $(OCOMMON) \
 		-Wl,--enable-auto-import \
 		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt \
 		-Wl,--exclude-all-symbols \
 		-Wl,-eDllMain -Wl,-Map=link/map.map
 
 $(OCORE): $(SCORE)
-	$(CC) $(DLLFLAGS) -c $(SCORE)
+	$(CPP) $(DLLFLAGS) -c $(SCORE)
 
 $(ODROP): $(SDROP)
-	$(CC) $(DLLFLAGS) -c $(SDROP)
+	$(CPP) $(DLLFLAGS) -c $(SDROP)
 
+$(OCOMMON): $(SCOMMON)
+	$(CC) $(CFLAGS) -c $(SCOMMON)
 
 launch: $(SLAUNCH) launch/Makefile
 	cd launch && make
@@ -36,7 +44,7 @@ tools: $(STOOLS) tools/offer/Makefile
 	cd tools/offer && make
 
 clean:
-	rm -f test.dll link/map.map $(OCORE) $(ODROP) 2>/dev/null
+	rm -f test.dll link/map.map $(OCORE) $(ODROP) $(OCOMMON) 2>/dev/null
 	cd launch && make clean
 	touch $(SLAUNCH)
 	cd tools/offer && make clean
