@@ -6,6 +6,8 @@
 #define rva_to_offset(base, rva)    ((void *)((uint8_t *)(base) + (rva)))
 #define offset_to_rva(base, off)    ((uint64_t)(void *)off - (uint64_t)base)
 
+#define round_up(size, step)        ((size % step)?((size / step + 1) * step):(size))
+
 struct dos_header {
     uint16_t e_magic;
     uint16_t e_cblp;
