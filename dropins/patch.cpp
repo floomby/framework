@@ -1,6 +1,8 @@
 #include "../core/external.h"
 #include "../common/pe_structs.h"
 
+#include <wincrypt.h>
+
 //TODO: make the dll into disk form again
 
 extern "C" void shim_end();
@@ -80,7 +82,6 @@ void write(HANDLE hFile, struct section_header *sh)
 
 }; //end namespace patch_stuff
 
-
 inline LONG GetFilePointer(HANDLE hFile)
 {
    return SetFilePointer(hFile, 0, NULL, FILE_CURRENT);
@@ -91,6 +92,9 @@ extern "C" __declspec(dllexport) void patch(const char *arg)
     size_t size;
     HANDLE hFile;
     DWORD num;
+
+    const char *sc = "\xC3";
+    size_t sz = 1;
 
     // open the file to patch in rw mode (note: this need exclusive privs to the file)
     // TODO: switch to using file locks
@@ -108,12 +112,10 @@ extern "C" __declspec(dllexport) void patch(const char *arg)
 
     // TODO: check to make sure the file is indeed an executable (using GetBinaryType) (we also can patch dlls though)
 
-    const char *sc = "\xC3";
-    size_t sc_sz = 1;
     
     // allocate memmory on the heap for the new thing
-    // NOTE: what we allocate here goes to disk anyways, so who cares if it cached
-    if(!(size = patch_stuff::set(sc, sc_sz))){
+    // NOTE: what we allocate here goes to disk anyways, so who cares if it swaped
+    if(!(size = patch_stuff::set(sc, sz))){
         sc_printf("unable to allocate memory\n");
         return;
     }

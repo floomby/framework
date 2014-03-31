@@ -1,11 +1,11 @@
-#include "internal.h"
+#include "external.h"
 
 #include "../common/pe_structs.h"
 #include "apiget/export.h"
 
 struct DllMeta_t DllMeta;
 
-extern "C" __declspec(dllexport) BOOL DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+extern "C" BOOL DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     struct dos_header *dh = (struct dos_header *)hinstDLL;
     struct nt_header *nh = (struct nt_header *)rva_to_offset(hinstDLL, dh->e_lfanew);
@@ -23,6 +23,9 @@ extern "C" __declspec(dllexport) BOOL DllMain(HINSTANCE hinstDLL, DWORD fdwReaso
     
     ZeroMemory(&DllMeta.next, sizeof(DllInfo_t));
 
+    DllMeta.heap = NULL;
+
+    // notify the dropins we have arived
     if(DllMeta.prev.pid){
         ((void (*)())GetExport(DllMeta.curr.where, "restart"))();
     }else{
@@ -30,14 +33,16 @@ extern "C" __declspec(dllexport) BOOL DllMain(HINSTANCE hinstDLL, DWORD fdwReaso
         return TRUE;
     }
 
-    // free memory from the last process
+    // free memory from the last process (if open process fails, the process is probably dead)
     if(DllMeta.prev.pid && !DllMeta.prev.kill){
         HANDLE hProc = OpenProcess(PROC_PERMS, FALSE, DllMeta.prev.pid);
+        if(hProc){
+            VirtualFreeEx(hProc, DllMeta.prev.where, DllMeta.prev.size, MEM_RELEASE);
     
-        VirtualFreeEx(hProc, DllMeta.prev.where, DllMeta.prev.size, MEM_RELEASE);
-    
-        CloseHandle(hProc);
+            CloseHandle(hProc);
+        }
     }
     
     return TRUE;
 }
+

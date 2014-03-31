@@ -6,6 +6,8 @@
 #include <windows.h>
 #include <cstdint>
 
+#define PROC_PERMS (PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ)
+
 typedef struct {
     void *where;
     size_t size;
@@ -23,6 +25,7 @@ struct DllMeta_t {
         char *buf;
         size_t buf_sz;
     } net;
+    HANDLE heap;
 };
 
 extern DllMeta_t DllMeta;

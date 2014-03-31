@@ -7,7 +7,7 @@ DLLFLAGS = $(CFLAGS) -fno-exceptions
 SCORE = $(wildcard core/*.cpp) $(wildcard core/reflect/*.cpp) $(wildcard core/inject/*.cpp) $(wildcard core/shell/*.cpp) $(wildcard core/apiget/*.cpp) $(wildcard core/migration/*.cpp)
 OCORE = $(notdir $(SCORE:.cpp=.o))
 
-SLAUNCH = $(wildcard core/reflect/*.cpp) launch/test.cpp
+SLAUNCH = $(wildcard core/reflect/*.cpp) launch/launch.cpp
 
 SDROP = $(wildcard dropins/*.cpp)
 ODROP = $(notdir $(SDROP:.cpp=.o))
@@ -24,7 +24,7 @@ all: dll launch tools
 dll: $(OCORE) $(ODROP) $(OCOMMON)
 	$(CPP) -o test.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) $(OCOMMON) \
 		-Wl,--enable-auto-import \
-		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt \
+		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt -lCrypt32 \
 		-Wl,--exclude-all-symbols \
 		-Wl,-eDllMain -Wl,-Map=link/map.map
 

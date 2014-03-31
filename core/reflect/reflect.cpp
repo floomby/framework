@@ -19,7 +19,7 @@ int move_dll;
 
 extern "C"
 __attribute__((optimize("omit-frame-pointer")))
-void *_ReflectiveLoad(void *dll)
+void *ReflectiveLoad(void *dll)
 {
     char *kernel;
     __asm__ __volatile__(
@@ -170,8 +170,8 @@ void *_ReflectiveLoad(void *dll)
         "popq %%rax;"
         "popq %%rcx;"
         "ret;"
-        ".global _ReflectiveLoad_end;"
-        "_ReflectiveLoad_end:;"
+        ".global ReflectiveLoad_end;"
+        "ReflectiveLoad_end:;"
         "nop;"
         :
         : "r" (base)

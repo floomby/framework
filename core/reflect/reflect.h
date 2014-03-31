@@ -6,9 +6,9 @@
 
 extern int move_dll;
 
-extern "C" void *_ReflectiveLoad(void *dll);
-extern "C" void _ReflectiveLoad_end();
+extern "C" void *ReflectiveLoad(void *dll);
+extern "C" void ReflectiveLoad_end();
 
-#define _ReflectiveLoad_size    ((uint32_t)((uint64_t)&_ReflectiveLoad_end - (uint64_t)&_ReflectiveLoad))
+#define ReflectiveLoad_size    ((uint32_t)((uint64_t)&ReflectiveLoad_end - (uint64_t)&ReflectiveLoad))
 
 #endif//REFLECT_H_INCLUDED

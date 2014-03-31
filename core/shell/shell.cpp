@@ -1,11 +1,6 @@
-
-#include "../internal.h"
 #include "shell.h"
-#include "../apiget/export.h"
 
-#include "../../common/crt.h"
-
-static char sc_buf[BUF_SIZE];
+static char sc_buf[4096];
 
 int sc_printf(const char *fmt, ...)
 {
@@ -16,8 +11,6 @@ int sc_printf(const char *fmt, ...)
     SockSend(sc_buf);
     return ret;
 }
-
-
 
 int SockConnect(const char *server, const char *port)
 {
@@ -59,7 +52,7 @@ int SockConnect(const char *server, const char *port)
 
     freeaddrinfo(result);
 
-    DllMeta.net.buf_sz = BUF_SIZE;
+    DllMeta.net.buf_sz = sizeof(sc_buf);
     DllMeta.net.buf = sc_buf;    
     sc_printf("hello\n");
     
