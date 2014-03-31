@@ -5,43 +5,30 @@
 
 struct DllMeta_t DllMeta;
 
-extern "C" BOOL DllMain(void *where, size_t size)
+extern "C" __declspec(dllexport) BOOL DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-    // set the metadata
-    DllMeta.prev = {0};
-    
-    DllMeta.curr.where = where;
-    DllMeta.curr.size = size;
-    DllMeta.curr.pid = GetCurrentProcessId();
-    DllMeta.curr.kill = false;
+    struct dos_header *dh = (struct dos_header *)hinstDLL;
+    struct nt_header *nh = (struct nt_header *)rva_to_offset(hinstDLL, dh->e_lfanew);
 
-    DllMeta.next = {0};
-    
-    // change the entry point
-    struct dos_header *dh = (struct dos_header *)where;
-    struct nt_header *nh = (struct nt_header *)rva_to_offset(where, dh->e_lfanew);
-    nh->OptionalHeader.AddressOfEntryPoint = offset_to_rva(where, &DllMain2);
-    
-    // call the starup dropin
-    ( (void (*)())GetExport(where, "startup") )();
-    
-    return TRUE;
-}
-
-extern "C" BOOL DllMain2(void *where, size_t size)
-{
     // set the metadata
     DllMeta.prev.where = DllMeta.curr.where;
     DllMeta.prev.size = DllMeta.curr.size;
     DllMeta.prev.pid = DllMeta.curr.pid;
     DllMeta.prev.kill = DllMeta.curr.kill;
 
-    DllMeta.curr.where = where;
-    DllMeta.curr.size  = size;
-    DllMeta.curr.pid = DllMeta.next.pid;
+    DllMeta.curr.where = hinstDLL;
+    DllMeta.curr.size  = nh->OptionalHeader.SizeOfImage;
+    DllMeta.curr.pid = GetCurrentProcessId();
     DllMeta.curr.kill = DllMeta.next.kill;
     
-    DllMeta.next = {0};    
+    ZeroMemory(&DllMeta.next, sizeof(DllInfo_t));
+
+    if(DllMeta.prev.pid){
+        ((void (*)())GetExport(DllMeta.curr.where, "restart"))();
+    }else{
+        ((void (*)())GetExport(DllMeta.curr.where, "startup"))();
+        return TRUE;
+    }
 
     // free memory from the last process
     if(DllMeta.prev.pid && !DllMeta.prev.kill){
@@ -51,9 +38,6 @@ extern "C" BOOL DllMain2(void *where, size_t size)
     
         CloseHandle(hProc);
     }
-    
-    // call the restart dropin
-    ( (void (*)())GetExport(where, "restart") )();
     
     return TRUE;
 }

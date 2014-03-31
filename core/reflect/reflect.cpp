@@ -17,6 +17,7 @@
 
 int move_dll;
 
+extern "C"
 __attribute__((optimize("omit-frame-pointer")))
 void *_ReflectiveLoad(void *dll)
 {
@@ -135,8 +136,17 @@ void *_ReflectiveLoad(void *dll)
         imp++;
     }
     
-    BOOL APIENTRY (*entry_fp)(void *, size_t) = (BOOL APIENTRY (*)(void *, size_t))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint);
-    entry_fp(base, NtHeader->OptionalHeader.SizeOfImage);
+    char *hook_str;
+    __asm__ __volatile__(
+        "lea 2(%%rip), %0;"
+        "jmp .+11;"
+        ".asciz \"DllMain2\";"
+        : "=r" (hook_str)
+        :
+        :
+    );
+    
+    ((BOOL WINAPI (*)(HINSTANCE, DWORD, LPVOID))rva_to_offset(base, NtHeader->OptionalHeader.AddressOfEntryPoint))((HINSTANCE)base, DLL_PROCESS_ATTACH, NULL);
 
     __asm__ __volatile__(
         "movq %0, %%rax;"
@@ -160,6 +170,9 @@ void *_ReflectiveLoad(void *dll)
         "popq %%rax;"
         "popq %%rcx;"
         "ret;"
+        ".global _ReflectiveLoad_end;"
+        "_ReflectiveLoad_end:;"
+        "nop;"
         :
         : "r" (base)
         :

@@ -73,7 +73,6 @@ void write(HANDLE hFile, struct section_header *sh)
     memcpy(what, (void *)&shim, shim_size);
 
     WriteFile(hFile, what, size, &num, NULL);
-    sc_printf("shim + shellcode write was %x bytes\n", num);
     void *pad = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sh->size_of_raw - size);
     WriteFile(hFile, pad, sh->size_of_raw - size, &num, NULL);
     HeapFree(GetProcessHeap(), 0, pad);

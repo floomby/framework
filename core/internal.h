@@ -9,7 +9,4 @@
 
 #include "meta.h"
 
-extern "C" BOOL DllMain(void *where, size_t size);
-extern "C" BOOL DllMain2(void *where, size_t size);
-
 #endif//INTERNEL_H_INCLUDED

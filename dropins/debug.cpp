@@ -7,9 +7,10 @@ extern "C" __declspec(dllexport) void currentpid(const char *arg)
 
 extern "C" __declspec(dllexport) void echo(const char *arg)
 {
-    SockSend(arg);
-    SockSend("\n");
+    sc_printf("%s\n", arg);
 }
 
-
-
+extern "C" __declspec(dllexport) void debuginfo(const char *arg)
+{
+    sc_printf("location: %x\nsize: %x\n", DllMeta.curr.where, DllMeta.curr.size);
+}
