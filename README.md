@@ -1,10 +1,25 @@
-framework
+Framework
 =========
 
-A framework for writing custom win32 payloads
+A framework for writing custom 64-bit Win32 payloads
 in the form of a dll.
 
 The framework provides some userspace tools for
-the payloads: reflective loading, process migration,
-reverse socket conections
+the payloads:
 
+ * Reflective loading
+ * Process migration
+ * Reverse socket conections
+ * Patching DLLs and EXEs on remote host
+
+Building
+--------
+
+You will need:
+
+ * Cygwin (64 bit) -- make, mingw64-x86_64-gcc-g++, nc6 (runtime only)
+
+    git clone https://github.com/floomby/framework.git
+    cd framework
+    make
+    
