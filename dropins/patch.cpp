@@ -1,7 +1,7 @@
 #include "../core/external.h"
 #include "../common/pe_structs.h"
 
-// TODO: I need to implent dll repacking
+//TODO: make the dll into disk form again
 
 extern "C" void shim_end();
 
@@ -109,11 +109,11 @@ extern "C" __declspec(dllexport) void patch(const char *arg)
 
     // TODO: check to make sure the file is indeed an executable (using GetBinaryType) (we also can patch dlls though)
 
-    // allocate memmory on the heap for the new thing
-    // NOTE: what we allocate here goes to disk anyways, so who cares if it cached
     const char *sc = "\xC3";
     size_t sc_sz = 1;
     
+    // allocate memmory on the heap for the new thing
+    // NOTE: what we allocate here goes to disk anyways, so who cares if it cached
     if(!(size = patch_stuff::set(sc, sc_sz))){
         sc_printf("unable to allocate memory\n");
         return;
