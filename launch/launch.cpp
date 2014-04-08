@@ -36,12 +36,15 @@ void *load(const char *name, size_t *read)
 
 int main(int argc, char *argv[])
 {
+
     PROCESS_INFORMATION proc_info;
     STARTUPINFO start_info;
 
     ZeroMemory(&proc_info, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&start_info, sizeof(STARTUPINFO));
     start_info.cb = sizeof(STARTUPINFO);
+
+    if(argc != 2){
 
     char cmd[] = "C:\\cygwin64\\bin\\nc.exe -l 1234";
 
@@ -59,7 +62,7 @@ int main(int argc, char *argv[])
         cerr << "unable to fork exec netcat: " << GetLastError() << endl;
         exit(EXIT_FAILURE);
     }
-
+    }
     char buf[4096];
     GetCurrentDirectory(sizeof(buf) - strlen("\\test.dll") - sizeof(TCHAR), buf);
     strcat(buf, "\\test.dll");
@@ -72,6 +75,8 @@ int main(int argc, char *argv[])
 
     free(dll);
 
+    if(argc != 2){
+    
     for(;;){
         Sleep(1000);
     }
@@ -81,6 +86,8 @@ int main(int argc, char *argv[])
     
     for(;;)
         Sleep(1000);
+    
+    }
 
     return 0;
 }

@@ -24,15 +24,15 @@ all: dll launch tools
 dll: $(OCORE) $(ODROP) $(OCOMMON)
 	$(CPP) -o test.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) $(OCOMMON) \
 		-Wl,--enable-auto-import \
-		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt -lCrypt32 \
+		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt -lCrypt32 -lShell32 \
 		-Wl,--exclude-all-symbols \
 		-Wl,-eDllMain -Wl,-Map=link/map.map
 
 $(OCORE): $(SCORE)
 	$(CPP) $(DLLFLAGS) -c $(SCORE)
 
-$(ODROP): $(SDROP)
-	$(CPP) $(DLLFLAGS) -c $(SDROP)
+%.o: dropins/%.cpp
+	$(CPP) $(DLLFLAGS) -c -o $@ $<
 
 $(OCOMMON): $(SCOMMON)
 	$(CC) $(CFLAGS) -c $(SCOMMON)

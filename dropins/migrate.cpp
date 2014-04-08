@@ -17,7 +17,7 @@ extern "C" __declspec(dllexport) void migrate(const char *arg)
         start_info.dwFlags = STARTF_USESHOWWINDOW;
         start_info.wShowWindow = SW_HIDE;
         
-        char cmd[] = "C:\\Windows\\System32\\notepad.exe";
+        char cmd[] = "notepad";
         
         CreateProcess(NULL,
                       cmd,
