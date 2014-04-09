@@ -15,6 +15,8 @@
 #define ordinal_number(x)   ((x & 0x7FFF80000000000) >> 47)
 #define hint_rva(x)         ((uint32_t)((x & 0x000007FFFFFFF)))
 
+// TODO: is inlining the strings nesesary?
+
 int move_dll;
 
 inline void move(void **base, void *dll, struct nt_header *nh, void *(*vAlloc)(void *, size_t, uint32_t, uint32_t))

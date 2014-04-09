@@ -28,10 +28,10 @@ dll: $(OCORE) $(ODROP) $(OCOMMON)
 		-Wl,--exclude-all-symbols \
 		-Wl,-eDllMain -Wl,-Map=link/map.map
 
-$(OCORE): $(SCORE)
+$(OCORE): $(SCORE) config.h
 	$(CPP) $(DLLFLAGS) -c $(SCORE)
 
-%.o: dropins/%.cpp
+%.o: dropins/%.cpp config.h
 	$(CPP) $(DLLFLAGS) -c -o $@ $<
 
 $(OCOMMON): $(SCOMMON)

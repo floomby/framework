@@ -17,7 +17,7 @@ Building
 
 You will need:
 
- * Cygwin (64 bit) -- make, mingw64-x86_64-gcc-g++, nc6 (runtime only)
+ * Cygwin (64 bit) -- make, mingw64-x86_64-gcc-g++
 
     ```
     git clone https://github.com/floomby/framework.git
@@ -25,3 +25,10 @@ You will need:
     make
     ```
     
+Usage
+-----
+
+    ```
+    (./launch.exe &) && nc -l 1234
+    
+    ```
