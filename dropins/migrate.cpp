@@ -45,5 +45,9 @@ extern "C" __declspec(dllexport) void migrate(const char *arg)
         return;
     }
     SockDisconnect();
-    ExitThread(0);
+    
+    if(DllMeta.curr.kill)
+        ExitProcess(0);
+    else
+        ExitThread(0);
 }

@@ -17,6 +17,23 @@
 
 int move_dll;
 
+inline void move(void **base, void *dll, struct nt_header *nh, void *(*vAlloc)(void *, size_t, uint32_t, uint32_t))
+{
+    // TODO: replace with header size
+    struct section_header *sections = (struct section_header *)((uint8_t *)nh + sizeof(struct nt_header) + 0x8);
+
+    // allocate space
+    *base = vAlloc(NULL, nh->OptionalHeader.SizeOfImage, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    
+    // copy headers
+    MemCpy(*base, dll, nh->OptionalHeader.SizeOfHeaders);
+    
+    // copy sections
+    for(int i = 0; i < nh->FileHeader.NumberOfSections; i++){
+        MemCpy(rva_to_offset(*base, sections[i].addr), rva_to_offset(dll, sections[i].pointer_to_raw), sections[i].size_of_raw);
+    }    
+}
+
 extern "C"
 __attribute__((optimize("omit-frame-pointer")))
 void *ReflectiveLoad(void *dll)
@@ -39,8 +56,9 @@ void *ReflectiveLoad(void *dll)
 
     void *kernel_handle = getModuleHandleA(kernel);
     
-    void *(*vAlloc)(void *, size_t, uint32_t, uint32_t) = (void *(*)(void *, size_t, uint32_t, uint32_t))getProcAddress(kernel_handle, (char *)(uint64_t)1468);
     void *(*loadLib)(const char *) = (void *(*)(const char *))getProcAddress(kernel_handle, (char *)(uint64_t)964);
+    void *(*vAlloc)(void *, size_t, uint32_t, uint32_t) = (void *(*)(void *, size_t, uint32_t, uint32_t))getProcAddress(kernel_handle, (char *)(uint64_t)1468);
+
 
     // parse headers for move
     struct dos_header *DosHeader = (struct dos_header *)dll;
@@ -50,16 +68,7 @@ void *ReflectiveLoad(void *dll)
     void *base;
 
     if(move_dll){
-        // allocate space
-        base = vAlloc(NULL, NtHeader->OptionalHeader.SizeOfImage, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-    
-        // copy headers
-        MemCpy(base, dll, NtHeader->OptionalHeader.SizeOfHeaders);
-    
-        // copy sections
-        for(int i = 0; i < NtHeader->FileHeader.NumberOfSections; i++){
-            MemCpy(rva_to_offset(base, sections[i].addr), rva_to_offset(dll, sections[i].pointer_to_raw), sections[i].size_of_raw);   
-        }
+        move(&base, dll, NtHeader, vAlloc);
     }else{
         base = dll;
     }

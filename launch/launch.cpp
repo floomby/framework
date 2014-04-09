@@ -77,15 +77,11 @@ int main(int argc, char *argv[])
 
     if(argc != 2){
     
-    for(;;){
+    for(;;)
         Sleep(1000);
-    }
 
     CloseHandle(proc_info.hProcess);
     CloseHandle(proc_info.hThread);
-    
-    for(;;)
-        Sleep(1000);
     
     }
 
