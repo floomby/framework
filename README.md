@@ -63,12 +63,3 @@ Right now I am aware of two bugs, both are minor
  * sc-test stays running for a couple minutes when launched as
    described in the instructions, this is due to it waiting
    for all the windsock threads to terminate before exiting
-
-Notes
------
-
- * patch is incomplete
- * this is not much better than a normal shell
- * it can be cached to disk
- 
-All of these will be fixed in the nearish future.

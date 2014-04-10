@@ -3,6 +3,8 @@
 
 #include <wincrypt.h>
 
+#include "../sc.h"
+
 //TODO: make the dll into disk form again
 
 extern "C" void shim_end();
@@ -52,14 +54,15 @@ namespace patch_stuff
 static void *what;
 static size_t size;
 
-size_t set(const void *sc, size_t sz)
+size_t set(const void *my_sc, size_t my_sz)
 {
-    if(NULL == (what = HeapAlloc(GetProcessHeap(), 0, sz + shim_size)))
+    if(NULL == (what = HeapAlloc(GetProcessHeap(), 0, sc_size + my_sz + shim_size)))
         return 0;
     
-    memcpy((uint8_t *)what + shim_size, sc, sz);
+    memcpy(rva_to_offset(what, shim_size), sc, sc_size);
+    memcpy(rva_to_offset(what, shim_size + sc_size), my_sc, my_sz);
     
-    size = sz + shim_size;
+    size = my_sz + shim_size + sc_size;
     return size;
 }
 
@@ -93,9 +96,6 @@ extern "C" __declspec(dllexport) void patch(const char *arg)
     HANDLE hFile;
     DWORD num;
 
-    const char *sc = "\xC3";
-    size_t sz = 1;
-
     // open the file to patch in rw mode (note: this need exclusive privs to the file)
     // TODO: switch to using file locks
     if(INVALID_HANDLE_VALUE == (hFile = CreateFile(arg,
@@ -106,16 +106,19 @@ extern "C" __declspec(dllexport) void patch(const char *arg)
                                                    FILE_ATTRIBUTE_NORMAL,
                                                    NULL
                                                    ))){
-        sc_printf("unable to open %s\n", arg);
+        sc_printf("unable to open %s: %d\n", arg, GetLastError());
         return;
     }
 
-    // TODO: check to make sure the file is indeed an executable (using GetBinaryType) (we also can patch dlls though)
-
-    
+    // TODO: check to make sure the file is indeed an 64 bit executable (using GetBinaryType) (we also can patch dlls though)
+        
     // allocate memmory on the heap for the new thing
     // NOTE: what we allocate here goes to disk anyways, so who cares if it swaped
-    if(!(size = patch_stuff::set(sc, sz))){
+    
+    void *rep = repack(DllMeta.curr.where);
+    
+    
+    if(!(size = patch_stuff::set(rep, disk_size(rep)))){
         sc_printf("unable to allocate memory\n");
         return;
     }
@@ -142,6 +145,7 @@ extern "C" __declspec(dllexport) void patch(const char *arg)
         sc_printf("unalble to patch executable: no room for new section header\n");
         patch_stuff::unset();
         CloseHandle(hFile);
+        free_repack(rep);
     }
 
     num = SetFilePointer(hFile, 0, NULL, FILE_END);
@@ -176,4 +180,5 @@ extern "C" __declspec(dllexport) void patch(const char *arg)
 
     patch_stuff::unset();
     CloseHandle(hFile);
+    free_repack(rep);
 }

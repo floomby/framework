@@ -7,5 +7,6 @@
 #include "shell/shell.h"
 #include "migration/migration.h"
 #include "apiget/export.h"
+#include "reflect/repack.h"
 
 #endif//EXTERNAL_H_INCLUDED
