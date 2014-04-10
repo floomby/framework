@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <windows.h>
 
-#include "../../common/pe_structs.h"
-#include "../../common/peb.h"
-#include "../stuff/str.h"
+#include "../../../common/pe_structs.h"
+#include "../../../common/peb.h"
+#include "str.h"
 
 
 #define _GetFuncAddr(module, ordinal, addr) \

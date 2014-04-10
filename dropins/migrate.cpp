@@ -38,6 +38,29 @@ extern "C" __declspec(dllexport) void migrate(const char *arg)
         CloseHandle(proc_info.hProcess);
         CloseHandle(proc_info.hThread);
     }else{
+        if(&IsWow64Process == NULL){
+            sc_printf("IsWow64Process unsuported: migration unattempted\n");
+            return;
+        }
+        
+        BOOL bWow64;
+        
+        HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
+        if(!hProc){
+            sc_printf("unable to open process\n");
+            return;
+        }
+        
+        IsWow64Process(hProc, &bWow64);
+        
+        if(bWow64){
+            sc_printf("process %d is wow64: unable to migrate\n", pid);
+            CloseHandle(hProc);
+            return;
+        }
+        
+        CloseHandle(hProc);
+    
         Next(pid, false);
     }
     

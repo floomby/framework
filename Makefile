@@ -3,26 +3,22 @@ CPP = x86_64-w64-mingw32-g++ -std=gnu++11
 CFLAGS = -nostdlib -nostartfiles -Os -fomit-frame-pointer
 DLLFLAGS = $(CFLAGS) -fno-exceptions
 
-
 SCORE = $(wildcard core/*.cpp) $(wildcard core/reflect/*.cpp) $(wildcard core/inject/*.cpp) $(wildcard core/shell/*.cpp) $(wildcard core/apiget/*.cpp) $(wildcard core/migration/*.cpp)
 OCORE = $(notdir $(SCORE:.cpp=.o))
-
-SLAUNCH = $(wildcard core/reflect/*.cpp) launch/launch.cpp
 
 SDROP = $(wildcard dropins/*.cpp)
 ODROP = $(notdir $(SDROP:.cpp=.o))
 
-STOOLS = $(wildcard tools/offer/*.cpp)
-
 SCOMMON = $(wildcard common/*.c)
 OCOMMON = $(notdir $(SCOMMON:.c=.o))
 
-.PHONY: clean all
+.PHONY: clean all tools
 
-all: dll launch tools
+all: dll tools
 
-dll: $(OCORE) $(ODROP) $(OCOMMON)
-	$(CPP) -o test.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) $(OCOMMON) \
+dll: $(OCORE) $(ODROP) $(OCOMMON) gcc.o
+	mkdir -p link
+	$(CPP) -o framework.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) $(OCOMMON) gcc.o \
 		-Wl,--enable-auto-import \
 		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt -lCrypt32 -lShell32 \
 		-Wl,--exclude-all-symbols \
@@ -37,15 +33,17 @@ $(OCORE): $(SCORE) config.h
 $(OCOMMON): $(SCOMMON)
 	$(CC) $(CFLAGS) -c $(SCOMMON)
 
+%.o: gcc/%.s
+	$(CC) -c -o $@ $<
+
 launch: $(SLAUNCH) launch/Makefile
 	cd launch && make
 
-tools: $(STOOLS) tools/offer/Makefile
+tools:
 	cd tools/offer && make
+	cd tools/sc-test && make
 
 clean:
-	rm -f test.dll link/map.map $(OCORE) $(ODROP) $(OCOMMON) 2>/dev/null
-	cd launch && make clean
-	touch $(SLAUNCH)
+	rm -rf framework.dll link $(OCORE) $(ODROP) $(OCOMMON) gcc.o 2>/dev/null
 	cd tools/offer && make clean
-	touch $(STOOLS)
+	cd tools/sc-test && make clean
