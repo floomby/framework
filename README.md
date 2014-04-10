@@ -21,6 +21,7 @@ You will need:
  * Ruby (Cygwin's or native Window's version, doesn't matter)
  * Git (well duh)
  * Netcat
+ * Nasm
  
 Fire up cygwin
 
@@ -42,7 +43,7 @@ can do the following
     cd shellcode/loader
     make
     ./loader | ruby >sc && cat ../../framework.dll >>sc
-    (../../tools/sc-test/sc-test sc &) && nc -l 1234
+    (../../tools/sc-test/sc-test sc &) && nc -k -l 1234
     
 Usage
 -----
