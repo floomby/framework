@@ -20,6 +20,7 @@ You will need:
  * Cygwin (64 bit) -- make, mingw64-x86_64-gcc-g++
  * Ruby (Cygwin's or native Window's version, doesn't matter)
  * Git (well duh)
+ * Netcat
  
 Fire up cygwin
 
@@ -39,6 +40,7 @@ can do the following
 
     make tools
     cd shellcode/loader
+    make
     ./loader | ruby >sc && cat ../../framework.dll >>sc
     (../../tools/sc-test/sc-test sc &) && nc -l 1234
     
