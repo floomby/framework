@@ -23,8 +23,6 @@ extern "C" BOOL DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     
     ZeroMemory(&DllMeta.next, sizeof(DllInfo_t));
 
-    DllMeta.heap = NULL;
-
     // notify the dropins we have arived
     if(DllMeta.prev.pid){
         ((void (*)())GetExport(DllMeta.curr.where, "restart"))();

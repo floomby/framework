@@ -10,7 +10,15 @@ the payloads:
  * Reflective loading
  * Process migration
  * Reverse socket conections
- * Patching DLLs and EXEs on remote host
+ 
+Several demo extension have been writen to do
+a variety of tasks:
+
+ * Backdoor DLLs and EXEs on remote host
+ * Privledge elavation
+ * Manipulate files
+ * Manipulate processes
+ 
 
 Building
 --------
@@ -32,7 +40,7 @@ Edit config.h to suit your need. The comments explain things.
 
     make dll
 
-This builds framework.dll. It is up to you to get
+This builds frameserv.dll. It is up to you to get
 it running on a target system. There is shellcode
 in the shellcode directory to help you get started.
 
@@ -42,7 +50,7 @@ can do the following
     make tools
     cd shellcode/loader
     make
-    ./loader | ruby >sc && cat ../../framework.dll >>sc
+    ./loader | ruby >sc && cat ../../frameserv.dll >>sc
     (../../tools/sc-test/sc-test sc &) && nc -k -l 1234
     
 Usage

@@ -25,7 +25,6 @@ struct DllMeta_t {
         char *buf;
         size_t buf_sz;
     } net;
-    HANDLE heap;
 };
 
 extern DllMeta_t DllMeta;

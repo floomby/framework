@@ -129,9 +129,7 @@ void SockShell()
     for(;;){
         if(DllMeta.net.sock == INVALID_SOCKET)
             break;
-        sc_printf(">");
         SockRecv();
-        sc_buf[strlen(sc_buf) - 1] = '\0';
         SockParse();
     }
 }

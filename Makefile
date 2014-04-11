@@ -12,13 +12,13 @@ ODROP = $(notdir $(SDROP:.cpp=.o))
 SCOMMON = $(wildcard common/*.c)
 OCOMMON = $(notdir $(SCOMMON:.c=.o))
 
-.PHONY: clean all tools
+.PHONY: clean all tools aux
 
-all: dll tools
+all: dll tools aux
 
 dll: $(OCORE) $(ODROP) $(OCOMMON) gcc.o
 	mkdir -p link
-	$(CPP) -o framework.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) $(OCOMMON) gcc.o \
+	$(CPP) -o frameserv.dll $(OCORE) $(ODROP) -shared $(DLLFLAGS) $(OCOMMON) gcc.o \
 		-Wl,--enable-auto-import \
 		-Wl,--no-whole-archive -lkernel32 -lWs2_32 -luser32 -lmsvcrt -lCrypt32 -lShell32 \
 		-Wl,--exclude-all-symbols \
@@ -35,15 +35,18 @@ $(OCOMMON): $(SCOMMON)
 
 %.o: gcc/%.s
 	$(CC) -c -o $@ $<
+	strip $@ -s -K ___chkstk_ms
 
-launch: $(SLAUNCH) launch/Makefile
-	cd launch && make
+aux: tools dll
+	tools/readpe/readpe.exe frameserv.dll | grep -E -v "(^startup)|(^restart)" >link/dropins
 
 tools:
 	cd tools/offer && make
 	cd tools/sc-test && make
+	cd tools/readpe && make
 
 clean:
-	rm -rf framework.dll link $(OCORE) $(ODROP) $(OCOMMON) gcc.o 2>/dev/null
+	rm -rf $(OCORE) $(ODROP) $(OCOMMON) gcc.o 2>/dev/null
 	cd tools/offer && make clean
 	cd tools/sc-test && make clean
+	cd tools/readpe && make clean
