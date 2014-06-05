@@ -18,7 +18,7 @@
         "movq 0x18(%%rbx), %0;" \
         : "=r" (the_data) \
         : \
-        : \
+        : "rax", "rbx" \
     ); \
     struct _ldr_data_table_entry *stop = the_data; \
     while(stop != (struct _ldr_data_table_entry *)(the_data->links.prev - 1)){ \
