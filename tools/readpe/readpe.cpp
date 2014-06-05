@@ -37,9 +37,6 @@ void exports(void *base)
     struct nt_header *nh = (struct nt_header *)rva_to_offset(base, dh->e_lfanew);
     struct export_directory *ed = (struct export_directory *)rva_to_offset(base, nh->OptionalHeader.DataDirectories.Export.RVA);
 
-    cout << "export dir rva: " << std::hex << nh->OptionalHeader.DataDirectories.Export.RVA << endl;
-    cout << ed->NumberOfNames << endl;
-    
     uint32_t *names = (uint32_t *)rva_to_offset(base, ed->AddressOfNames);
     uint32_t idx = 0;
     

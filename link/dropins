@@ -1,0 +1,16 @@
+sizeofimage: c000
+cd
+cmd
+currentpid
+cwd
+debuginfo
+echo
+hide
+launch
+ls
+migrate
+patch
+quit
+replace
+show
+sockinfo

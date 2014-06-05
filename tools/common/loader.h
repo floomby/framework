@@ -22,7 +22,7 @@ inline void *load(const char *path, size_t *size)
     void *ret = malloc(*size);
     assert(ret);
     
-    fread(ret, 1, *size, fp);
+    fread(ret, *size, 1, fp);
     
     fclose(fp);
     
@@ -40,8 +40,6 @@ inline void *expand(void *dll)
     // TODO: replace with header sizes
     struct section_header *sections = (struct section_header *)rva_to_offset(nh, sizeof(struct nt_header));
 
-    std::cout << "section header offset: " << std::hex << (uint64_t)offset_to_rva(dll, sections) << std::endl;
-
     // allocate space
     void *base = malloc(nh->OptionalHeader.SizeOfImage);
     assert(base);
@@ -50,9 +48,8 @@ inline void *expand(void *dll)
     // copy headers
     memcpy(base, dll, nh->OptionalHeader.SizeOfHeaders);
     
-    std::cout << "number of sections rva: " << std::hex << (uint64_t)offset_to_rva(dll, &nh->FileHeader.NumberOfSections) << std::endl;
-    
-    std::cout << nh->FileHeader.NumberOfSections << std::endl;
+    // I am completely bogled here but well make it work for now (think gcc is handling my structs strangly)
+    nh->FileHeader.NumberOfSections = *(uint16_t *)rva_to_offset(dll, 0x85);
     
     // copy sections
     for(int i = 0; i < nh->FileHeader.NumberOfSections; i++){

@@ -38,7 +38,7 @@ $(OCOMMON): $(SCOMMON)
 	strip $@ -s -K ___chkstk_ms
 
 aux: tools dll
-	tools/readpe/readpe.exe frameserv.dll | grep -E -v "(^startup)|(^restart)" >link/dropins
+	tools/readpe/readpe.exe frameserv.dll exports | grep -E -v "(^startup)|(^restart)" >link/dropins
 
 tools:
 	cd tools/offer && make
