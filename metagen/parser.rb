@@ -1,31 +1,60 @@
 #!/usr/bin/env ruby
 
-# A fsm to parse the directive files
-# super buggy but if you write good
+# A decent (not recursive) parser to
+# parse the directive files
+# probably super buggy but if you write good
 # directive files it should work just fine
 
-
+require 'json'
 require 'erb'
 require 'ostruct'
 
+class Declstruct
+    def initialize parent, name
+        abort "Declstruct not implemented"
+    end
+end
+
+class Constdata
+    def initialize parent, name
+        abort "Constdata not implemented"
+    end
+end
+
 class Header
     
-    def initialize name
+#    @@declaration = '<%= type %> <%= token %>;'
+#    @@assingment  = '<%= token %> = <%= value %>;'
+#    @@constdecl   = 'const <%= type %> <%= token > = <%= value %>;'
     
+    def initialize parent, name
+        @parent = parent
         @name = name
-        puts "new Header #{name}"
-    
+        @body = ''
+        @state = 'Idle'
     end
     
     def parse_line line
         
-        puts "Header got line #{line}"
+        if @state == 'Idle'
+            if /^[ ]?+end[ ]?+$/.match line
+                write
+                @parent.send 'idle'
+            else
+                a = /^[ ]?+([^ ]+) ([^ ]+)[ ]?+$/.match line
+                raise 'syntax error' unless !a
+                @state = a[1]
+                @obj = (Kernel.const_get a[1]).new a[2]
+            end
+        else
+            @obj.send 'parse_line', line
+        end
         
     end
     
     def write
         
-        namespace = OpenStruct.new name: @name
+        namespace = OpenStruct.new name: @name, body: @body
         template = IO.read 'templates/header.h.erb'
         renderer = ERB.new template
         file = File.open "#{@name}.h", "w"
@@ -37,20 +66,19 @@ end
 
 
 class Nasm
-    def initialize name
+    def initialize parent, name
         @name = name
         abort "Nasm backend not implemented"
     end
-    
     def parse_line line
         abort "Nasm backend not implemented"
     end
-    
     def write
         abort "Nasm backend not implemented"
     end
 end
 
+# 
 
 class DrcvParser
 
@@ -68,21 +96,21 @@ class DrcvParser
     def parse_line line
         
         line.chomp!
+        @line += 1
         
-        if @state != 'Idle'
-            @obj.send 'parse_line', line
+        if @state == 'Idle'
+            a = /^[ ]?+([^ ]+) ([^ ]+)[ ]?+$/.match line
+            abort "syntax error on line #{@line}: #{line}" unless a
+            @state = a[1]
+            @obj = (Kernel.const_get a[1]).new self, a[2]
         else
-            a = /^([^ ]+) ([^ ]+)$/.match line
-            if /^end[ ]*/.match line
-                @obj.send 'write'
-                @state = 'Idle'
-            elsif !a
-                abort "syntax error on line #{@line}: #{line}"
-            else
-                @obj = (Kernel.const_get a[1]).new a[2]
-            end
+            @obj.send 'parse_line', line
         end
-        
+    end
+    
+
+    def idle
+        @state = 'Idle'
     end
         
 end
