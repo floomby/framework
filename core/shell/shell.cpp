@@ -117,9 +117,9 @@ void SockParse()
         strcpy(arg_buf, tmp);
         ( (void (*)(const char *))fp )(arg_buf);
     }else{
-        SockSend("undefined directive: ");
-        SockSend(sc_buf);
-        SockSend("\n");
+        char tmp[sizeof(sc_buf)];
+        strcpy(tmp, sc_buf);
+        sc_printf("undefined directive: : %s\n", tmp);
     }
 }
 

@@ -46,7 +46,9 @@ tools:
 	cd tools/readpe && make
 
 clean:
-	rm -rf $(OCORE) $(ODROP) $(OCOMMON) gcc.o 2>/dev/null
-	cd tools/offer && make clean
-	cd tools/sc-test && make clean
-	cd tools/readpe && make clean
+	-rm -rf $(OCORE) $(ODROP) $(OCOMMON) gcc.o 2>/dev/null
+	-cd tools/offer && make clean
+	-cd tools/sc-test && make clean
+	-cd tools/readpe && make clean
+	-rm -rf sc 2>/dev/null
+
