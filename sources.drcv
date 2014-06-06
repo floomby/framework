@@ -1,0 +1,7 @@
+Header shellcode
+    Quote #include <cstdint>
+    Namespace shellcode
+        Print const char *sc = @`shellcode/loader/loader.exe`.gsub /print /, ''@;
+        Print const size_t sc_size = @(eval `shellcode/loader/loader.exe`.gsub /print /, '').length@;
+    end
+end
